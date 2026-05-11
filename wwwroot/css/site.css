@@ -1,0 +1,84 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+    background-color: #FFF9F9; 
+    color: #4A2C2A; 
+}
+.navbar {
+    background-color: #ffffff !important;
+    border-bottom: 4px solid #A93226 !important; 
+    box-shadow: 0 2px 15px rgba(169, 50, 38, 0.1);
+}
+.navbar-brand {
+    font-weight: 700;
+    color: #A93226 !important;
+    font-size: 1.6rem;
+    letter-spacing: -0.5px;
+}
+
+.nav-link {
+    color: #4A2C2A !important;
+    font-weight: 600;
+}
+
+
+.btn-primary {
+    background-color: #A93226 !important;
+    border: none;
+    border-radius: 50px; 
+    padding: 8px 25px;
+    font-weight: bold;
+}
+
+.btn-primary:hover {
+    background-color: #8E2921 !important; 
+    transform: scale(1.05); 
+    transition: 0.3s;
+}
+
+
+.footer {
+    background-color: #ffffff;
+    color: #8D6E63 !important;
+}
+
+
+.form-control {
+    border: 2px solid #eee;
+    border-radius: 12px; 
+    padding: 12px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #A93226; 
+    box-shadow: 0 0 0 0.25rem rgba(169, 50, 38, 0.1); 
+    color: #4A2C2A;
+}
+
+
+.form-floating > label {
+    color: #8D6E63;
+}
+
+.form-floating > .form-control:focus ~ label {
+    color: #A93226;
+}
