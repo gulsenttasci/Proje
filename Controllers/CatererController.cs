@@ -90,6 +90,42 @@ namespace Hearty_Bites.Controllers
 
 
         }
+
+        [HttpGet]
+        public async Task<IActionResult> EditFood(int id)
+        {
+            var food = await _context.MenuItems.FindAsync(id);
+            if (food == null) return NotFound();
+    
+            return View(food);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditFood(MenuItem model)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Update(model);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(model);
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> DeleteFood(int id)
+        {
+            var food = await _context.MenuItems.FindAsync(id);
+            if (food != null)
+            {
+                _context.MenuItems.Remove(food);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Index));
+        }
     }
 
 }

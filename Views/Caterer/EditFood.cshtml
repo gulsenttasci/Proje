@@ -1,0 +1,39 @@
+@model Hearty_Bites.Models.MenuItem
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header text-white" style="background-color: #d81b60;">
+                    <h4 class="mb-0">Update Your Food ✍️</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="EditFood">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="CatererId" /> <div class="mb-3">
+                            <label asp-for="FoodName" class="form-label fw-bold">Food Name</label>
+                            <input asp-for="FoodName" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label fw-bold">Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Price" class="form-label fw-bold">Price</label>
+                            <input asp-for="Price" class="form-control" type="number" step="0.01" />
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn text-white btn-lg" style="background-color: #d81b60;">
+                                Save Changes
+                            </button>
+                            <a asp-action="Index" class="btn btn-link text-muted">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
