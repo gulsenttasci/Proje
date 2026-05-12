@@ -1,9 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 namespace Hearty_Bites.Models
 {
     public class MenuItem
     {
+        [Key]
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Food name is required")]
@@ -18,7 +20,9 @@ namespace Hearty_Bites.Models
         public string Description { get; set; } = string.Empty;
 
         public int CatererId { get; set; }
-        public Caterer Caterer { get; set; } = null!;
+
+        [ValidateNever]
+        public Caterer? Caterer { get; set; }
         public bool IsDeleted { get; set; } = false;
     }
 }

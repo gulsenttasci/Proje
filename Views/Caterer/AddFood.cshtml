@@ -1,0 +1,51 @@
+@model Hearty_Bites.Models.MenuItem
+
+@{
+    ViewData["Title"] = "Add New Food";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header text-white" style="background-color: #d81b60;">
+                    <h4 class="mb-0">Add a New Masterpiece 🍳</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="AddFood">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="FoodName" class="form-label fw-bold">Food Name</label>
+                            <input asp-for="FoodName" class="form-control" placeholder="e.g. Homemade Lasagna" />
+                            <span asp-validation-for="FoodName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label fw-bold">Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Describe the taste and ingredients..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Price" class="form-label fw-bold">Price</label>
+                            <input asp-for="Price" class="form-control" type="number" step="0.01" />
+                            <span asp-validation-for="Price" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn text-white btn-lg" style="background-color: #d81b60;">
+                                Add to My Menu
+                            </button>
+                            <a asp-action="Index" class="btn btn-link text-muted">Back to Dashboard</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

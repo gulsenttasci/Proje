@@ -24,5 +24,8 @@ namespace Hearty_Bites.Models
         [ValidateNever]
         public User? User { get; set; }
         public bool IsDeleted { get; set; } = false;
+
+        [ValidateNever]
+        public ICollection<MenuItem> MenuItems { get; set; } = new List<MenuItem>();
     }
 }

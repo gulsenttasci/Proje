@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Hearty_Bites.Data;
 using Hearty_Bites.Models;
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 
 namespace Hearty_Bites.Controllers
 {
@@ -21,19 +22,21 @@ namespace Hearty_Bites.Controllers
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var shop = _context.Caterers.FirstOrDefault(c => c.UserId == userId);
+            var shop = _context.Caterers
+            .Include(c => c.MenuItems)
+            .FirstOrDefault(c => c.UserId == userId);
 
             return View(shop);
         }
 
-        
+
         [HttpGet]
         public IActionResult CreateProfile()
         {
             return View();
         }
 
-       
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateProfile(Caterer caterer)
@@ -43,7 +46,7 @@ namespace Hearty_Bites.Controllers
             {
                 caterer.UserId = userId;
 
-                
+
                 if (ModelState.IsValid)
                 {
                     _context.Caterers.Add(caterer);
@@ -55,5 +58,38 @@ namespace Hearty_Bites.Controllers
         }
 
 
+        [HttpGet]
+        public IActionResult AddFood()
+        {
+            return View();
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddFood(MenuItem menuItem)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var caterer = _context.Caterers.FirstOrDefault(c => c.UserId == userId);
+
+            if (caterer != null)
+            {
+
+                menuItem.CatererId = caterer.Id;
+
+                if (ModelState.IsValid)
+                {
+                    _context.MenuItems.Add(menuItem);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+
+            return View(menuItem);
+
+
+        }
     }
+
 }
