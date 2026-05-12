@@ -1,53 +1,64 @@
-@model Hearty_Bites.ViewModels.RegisterViewModel
+@model Hearty_Bites.Models.RegisterViewModel
 
 @{
-    ViewData["Title"] = "Sign Up";
+    ViewData["Title"] = "Join Our Community";
 }
 
 <div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-md-6 border p-4 shadow-sm rounded">
-            <h2 class="text-center mb-4">Join Us</h2>
-            
-            <form asp-action="Register" method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-4">Create Your Account 🌸</h2>
+                    <p class="text-center text-muted">Be part of a us.</p>
+                    <hr />
 
-                <div class="mb-3">
-                    <label asp-for="FullName" class="form-label">Full Name</label>
-                    <input asp-for="FullName" class="form-control" placeholder="First Name Last Name" />
-                    <span asp-validation-for="FullName" class="text-danger"></span>
+                    <form asp-action="Register" method="post">
+                        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label font-weight-bold"></label>
+                            <input asp-for="Email" class="form-control" placeholder="Enter your email" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label font-weight-bold"></label>
+                            <input asp-for="Password" class="form-control" placeholder="Create a password" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ConfirmPassword" class="form-label font-weight-bold"></label>
+                            <input asp-for="ConfirmPassword" class="form-control" placeholder="Repeat your password" />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label d-block font-weight-bold">How would you like to join?</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" asp-for="SelectedRole" value="User" id="roleUser" checked>
+                                <label class="form-check-label" for="roleUser">I want to explore (Customer)</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" asp-for="SelectedRole" value="Caterer" id="roleCaterer">
+                                <label class="form-check-label" for="roleCaterer">I want to cook (Caterer)</label>
+                            </div>
+                            <span asp-validation-for="SelectedRole" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg" style="background-color: #d81b60; border: none;">
+                                Register
+                            </button>
+                        </div>
+                    </form>
                 </div>
-
-                <div class="mb-3">
-                    <label asp-for="Email" class="form-label">Email</label>
-                    <input asp-for="Email" class="form-control" placeholder="example@mail.com" />
-                    <span asp-validation-for="Email" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Role" class="form-label">Membership Type</label>
-                    <select asp-for="Role" class="form-select">
-                        <option value="">Select...</option>
-                        <option value="Caterer">Caterer</option>
-                        <option value="User">Customer</option>
-                    </select>
-                    <span asp-validation-for="Role" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Password" class="form-label">Password</label>
-                    <input asp-for="Password" type="password" class="form-control" />
-                    <span asp-validation-for="Password" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="ConfirmPassword" class="form-label">Password Again</label>
-                    <input asp-for="ConfirmPassword" type="password" class="form-control" />
-                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                </div>
-
-                <button type="submit" class="btn btn-primary w-100">Sign Up</button>
-            </form>
+            </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

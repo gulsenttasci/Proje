@@ -1,0 +1,30 @@
+@model Hearty_Bites.Models.Caterer
+
+@{
+    ViewData["Title"] = "Join the Community";
+}
+
+<div class="container mt-5">
+    <h2>Create Your Shop Profile🌸</h2>
+    <p class="text-muted">Fill in your details to take your place in our free, authentic community.</p>
+    <hr />
+
+    <form asp-action="CreateProfile">
+        <div class="mb-3">
+            <label asp-for="ShopName" class="form-label">Shop Name</label>
+            <input asp-for="ShopName" class="form-control" placeholder="Örn: Ayse's Kitchen" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label">Shop Description </label>
+            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Tell us about yourself and your products..."></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Address" class="form-label">Full Adress</label>
+            <input asp-for="Address" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="background-color: #d81b60; border: none;">Join the Community</button>
+    </form>
+</div>
