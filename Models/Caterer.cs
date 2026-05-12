@@ -8,14 +8,11 @@ namespace Hearty_Bites.Models
 
         [Required(ErrorMessage = "Shop Name is required")]
         [StringLength(100)]
-        public string ShopName { get; set; }
-
-        [Required]
-        public string Description { get; set; } 
-
-        public string Address { get; set; }
-
-        public int UserId { get; set; }
-        public User User { get; set; }
+        public string ShopName { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public string Address { get; set; } = string.Empty;
+        public string UserId { get; set; }= string.Empty;
+        public User User { get; set; } = null!;
+        public bool IsDeleted { get; set; } = false;
     }
 }
