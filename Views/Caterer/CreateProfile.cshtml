@@ -10,21 +10,28 @@
     <hr />
 
     <form asp-action="CreateProfile">
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
         <div class="mb-3">
             <label asp-for="ShopName" class="form-label">Shop Name</label>
             <input asp-for="ShopName" class="form-control" placeholder="Örn: Ayse's Kitchen" />
         </div>
 
         <div class="mb-3">
-            <label asp-for="Description" class="form-label">Shop Description </label>
+            <label asp-for="Description" class="form-label">About Your Shop</label>
             <textarea asp-for="Description" class="form-control" rows="3" placeholder="Tell us about yourself and your products..."></textarea>
         </div>
 
         <div class="mb-3">
             <label asp-for="Address" class="form-label">Full Adress</label>
-            <input asp-for="Address" class="form-control" />
+            <input asp-for="Address" class="form-control" placeholder="Where should customers find you?" />
+            <span asp-validation-for="Address" class="text-danger"></span>
         </div>
-
-        <button type="submit" class="btn btn-primary" style="background-color: #d81b60; border: none;">Join the Community</button>
+        
+        <div class="d-grid gap-2">
+             <button type="submit" class="btn btn-lg text-white" style="background-color: #d81b60;">
+                Launch My Shop
+             </button>
+             <a asp-action="Index" class="btn btn-link text-muted text-decoration-none">Cancel</a>
+         </div>
     </form>
 </div>

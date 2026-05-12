@@ -26,14 +26,14 @@ namespace Hearty_Bites.Controllers
             return View(shop);
         }
 
-        // 1. Sayfayı Görüntülemek İçin (GET)
+        
         [HttpGet]
         public IActionResult CreateProfile()
         {
             return View();
         }
 
-        // 2. Formu Gönderince Veritabanına Kaydetmek İçin (POST)
+       
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateProfile(Caterer caterer)
@@ -43,7 +43,7 @@ namespace Hearty_Bites.Controllers
             {
                 caterer.UserId = userId;
 
-                // Model kurallara uygunsa kaydet
+                
                 if (ModelState.IsValid)
                 {
                     _context.Caterers.Add(caterer);
