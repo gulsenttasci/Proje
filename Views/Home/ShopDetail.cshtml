@@ -1,0 +1,112 @@
+@model Hearty_Bites.Models.Caterer
+
+@{
+    ViewData["Title"] = Model.ShopName + " - Menu";
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+    
+    .premium-font { 
+        font-family: 'Playfair Display', serif; 
+        color:#3E322C;
+    }
+    
+    .caterer-hero {
+        background-color: #faf9f8; 
+        padding: 80px 0;
+        border-bottom: 1px solid #E6DFD3;
+    }
+
+    .menu-item {
+        border-bottom: 1px dashed #D5C9BC;
+        padding: 25px 0;
+        transition: background-color 0.3s ease;
+    }
+
+    .menu-item:last-child {
+        border-bottom: none;
+    }
+
+    .menu-item:hover {
+        background-color: #FDFBF8; 
+    }
+
+    .food-price {
+        color: #7A2836; 
+        font-weight:600;
+        font-size: 1.2rem;
+        font-family: 'Courier New', Courier, monospace; 
+    }
+
+    .badge-custom{
+        background-color: :#fff;
+        color: #8c7361;
+        border:1px solid #E6DFD3;
+    }
+
+    .accent-line{
+        width:50 px;
+        height:2 px;
+        background-color: #7A2836;
+        margin:15 px auto;
+    }
+
+</style>
+
+<div class="caterer-hero text-center mb-5">
+    <div class="container">
+        <h1 class="premium-font display-4 fw-bold mb-3">@Model.ShopName</h1>
+        <p class="lead text-muted mx-auto" style="max-width: 600px; font-weight: 300;">
+            @Model.Description
+        </p>
+        <div class="mt-4">
+
+            <span class="badge badge-custom py-2 px-3 fw-normal me-2">
+                <i class="bi bi-star-fill" style="color: #8C7361;"></i> 4.8 / 5.0
+            </span>
+            <span class="badge badge-custom py-2 px-3 fw-normal">
+                <i class="bi bi-geo-alt"></i> Ankara & Surrounding Areas
+            </span>
+
+            <div class="accent-line"></div>
+           
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="text-center mb-5">
+        <h2 class="premium-font h1">Curated Menu</h2>
+        <div style="width: 50px; height: 2px; background-color: #d81b60; margin: 15px auto;"></div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            
+            @if (Model.MenuItems == null || !Model.MenuItems.Any())
+            {
+                <div class="text-center text-muted p-5 border rounded bg-light">
+                    This caterer is currently refining their menu. Please check back later.
+                </div>
+            }
+            else
+            {
+                @foreach (var item in Model.MenuItems)
+                {
+                    <div class="menu-item d-flex justify-content-between align-items-center">
+                        <div class="pe-4">
+                            <h5 class="fw-bold mb-1" style="color: #2c3e50;">@item.FoodName</h5>
+                            <small class="text-muted" style="line-height: 1.6;">@item.Description</small>
+                        </div>
+                        <div class="food-price text-end">
+                            @item.Price.ToString("C")
+                        </div>
+                    </div>
+                }
+            }
+
+        </div>
+    </div>
+</div>

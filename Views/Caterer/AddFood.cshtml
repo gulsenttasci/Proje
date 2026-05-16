@@ -1,51 +1,75 @@
 @model Hearty_Bites.Models.MenuItem
 
-@{
-    ViewData["Title"] = "Add New Food";
-}
-
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-sm border-0">
-                <div class="card-header text-white" style="background-color: #d81b60;">
-                    <h4 class="mb-0">Add a New Masterpiece 🍳</h4>
+        <div class="col-md-7 col-lg-6">
+            <div class="card shadow-sm border-0" style="border-radius: 16px; overflow: hidden; background-color: #ffffff;">
+                
+                <div class="card-header bg-white py-4 text-center" style="border-bottom: 1px solid #E6DFD3;">
+                    <h2 class="premium-font mb-0" style="color: #3E322C;">
+                        <i class="bi bi-journal-plus me-2" style="color: #8C7361;"></i>Create Catering Menu
+                    </h2>
+                    <p class="text-muted mt-2 mb-0" style="font-size: 0.9rem;">Define your package, set a price, and add customization options.</p>
                 </div>
-                <div class="card-body p-4">
-                    <form asp-action="AddFood">
-                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-                        <div class="mb-3">
-                            <label asp-for="FoodName" class="form-label fw-bold">Food Name</label>
-                            <input asp-for="FoodName" class="form-control" placeholder="e.g. Homemade Lasagna" />
-                            <span asp-validation-for="FoodName" class="text-danger"></span>
+                
+                <div class="card-body p-5">
+                    <form asp-action="AddFood" enctype="multipart/form-data" method="post">
+                        
+                        <div class="mb-4">
+                            <label asp-for="FoodName" class="form-label premium-font fw-bold" style="color: #8C7361;">Menu / Package Title</label>
+                            <input asp-for="FoodName" class="form-control px-3 py-2 shadow-none" placeholder="e.g., Premium Wedding Buffet" style="border: 1px solid #E6DFD3; background-color: #F9F6F0;" />
+                            <span asp-validation-for="FoodName" class="text-danger small"></span>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Description" class="form-label fw-bold">Description</label>
-                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Describe the taste and ingredients..."></textarea>
-                            <span asp-validation-for="Description" class="text-danger"></span>
+                        <div class="mb-4">
+                            <label asp-for="Price" class="form-label premium-font fw-bold" style="color: #8C7361;">Base Price (₺)</label>
+                            <input asp-for="Price" class="form-control px-3 py-2 shadow-none" type="number" step="0.01" style="border: 1px solid #E6DFD3; background-color: #F9F6F0;" />
+                            <span asp-validation-for="Price" class="text-danger small"></span>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Price" class="form-label fw-bold">Price</label>
-                            <input asp-for="Price" class="form-control" type="number" step="0.01" />
-                            <span asp-validation-for="Price" class="text-danger"></span>
+                        <div class="mb-4">
+                            <label asp-for="Description" class="form-label premium-font fw-bold" style="color: #8C7361;">Package Description</label>
+                            <textarea asp-for="Description" class="form-control px-3 py-3 shadow-none" rows="8"
+                            placeholder="Please list the full menu details here...&#10;For example:&#10;• Starters: Cheese Platter, Bruschetta&#10;• Main Course: Grilled Salmon or Beef Wellington&#10;• Desserts: Tiramisu" 
+                            style="border: 1px solid #E6DFD3; background-color: #F9F6F0; min-height: 180px; resize: vertical; line-height: 1.6;"></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
                         </div>
 
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn text-white btn-lg" style="background-color: #d81b60;">
-                                Add to My Menu
+                        <div class="mb-5">
+                            <label class="form-label premium-font fw-bold" style="color: #8C7361;">
+                                <i class="bi bi-camera me-2"></i>Cover Image
+                            </label>
+                            <input type="file" name="imageFile" class="form-control px-3 py-2 shadow-none" accept="image/*" style="border: 1px dashed #8C7361; background-color: #F9F6F0;" />
+                            <small class="text-muted d-block mt-1">High-quality photos increase bookings by 40%.</small>
+                        </div>
+
+                        <div class="d-grid gap-3">
+                            <button type="submit" class="btn text-white btn-lg rounded-pill" style="background-color: #7A2836; transition: 0.3s;">
+                                Create Menu & Continue
                             </button>
-                            <a asp-action="Index" class="btn btn-link text-muted">Back to Dashboard</a>
+                            <a asp-action="Index" class="btn btn-link text-decoration-none" style="color: #8C7361;">Cancel</a>
                         </div>
                     </form>
                 </div>
+            </div>
+
+            <div class="mt-4 p-3 rounded" style="background-color: rgba(140, 115, 97, 0.1); border-left: 4px solid #8C7361;">
+                <small style="color: #3E322C;">
+                    <strong>Note:</strong> After creating the menu, you will be redirected to add <strong>Customization Options</strong> (like removable ingredients or side choices) as required by the project specifications.
+                </small>
             </div>
         </div>
     </div>
 </div>
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+<style>
+    .form-control:focus {
+        border-color: #8C7361 !important;
+        background-color: #ffffff !important;
+        box-shadow: 0 0 0 0.2rem rgba(140, 115, 97, 0.1) !important;
+    }
+    button[type="submit"]:hover {
+        background-color: #5c1d28 !important;
+        transform: translateY(-1px);
+    }
+</style>

@@ -1,84 +1,43 @@
-html {
-  font-size: 14px;
+
+:root {
+    --bg-cream: #F9F6F0;
+    --earth: #8C7361;
+    --cherry: #7A2836;
+    --dark-earth: #3E322C;
+    --border-light: #E6DFD3;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
 
 body {
-  font-family: 'Nunito', sans-serif;
-    background-color: #FFF9F9; 
-    color: #4A2C2A; 
-}
-.navbar {
-    background-color: #ffffff !important;
-    border-bottom: 4px solid #A93226 !important; 
-    box-shadow: 0 2px 15px rgba(169, 50, 38, 0.1);
-}
-.navbar-brand {
-    font-weight: 700;
-    color: #A93226 !important;
-    font-size: 1.6rem;
-    letter-spacing: -0.5px;
+    background-color: var(--bg-cream);
+    color: var(--dark-earth);
+    font-family: 'Lato', sans-serif; 
 }
 
-.nav-link {
-    color: #4A2C2A !important;
+h1, h2, h3, h4, h5, h6, .premium-font {
+    font-family: 'Playfair Display', serif;
+    color: var(--dark-earth);
     font-weight: 600;
 }
 
 
-.btn-primary {
-    background-color: #A93226 !important;
+.btn-primary-custom {
+    background-color: var(--cherry);
+    color: white;
     border: none;
-    border-radius: 50px; 
-    padding: 8px 25px;
-    font-weight: bold;
+    padding: 10px 24px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
 }
 
-.btn-primary:hover {
-    background-color: #8E2921 !important; 
-    transform: scale(1.05); 
-    transition: 0.3s;
+.btn-primary-custom:hover {
+    background-color: #5c1d28; 
+    color: white;
 }
 
 
-.footer {
+.card {
     background-color: #ffffff;
-    color: #8D6E63 !important;
-}
-
-
-.form-control {
-    border: 2px solid #eee;
-    border-radius: 12px; 
-    padding: 12px;
-    transition: all 0.3s ease;
-}
-
-.form-control:focus {
-    border-color: #A93226; 
-    box-shadow: 0 0 0 0.25rem rgba(169, 50, 38, 0.1); 
-    color: #4A2C2A;
-}
-
-
-.form-floating > label {
-    color: #8D6E63;
-}
-
-.form-floating > .form-control:focus ~ label {
-    color: #A93226;
+    border: 1px solid var(--border-light);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
 }

@@ -28,6 +28,8 @@ namespace Hearty_Bites.Data
             builder.Entity<Caterer>().HasQueryFilter(c => !c.IsDeleted);
             builder.Entity<MenuItem>().HasQueryFilter(m => !m.IsDeleted);
             builder.Entity<Comments>().HasQueryFilter(com => !com.IsDeleted);
+            builder.Entity<CustomizationGroup>().HasQueryFilter(g => !g.IsDeleted);
+            builder.Entity<CustomizationOption>().HasQueryFilter(o => !o.IsDeleted);
         }
     }
 }

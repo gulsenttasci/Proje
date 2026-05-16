@@ -1,14 +1,34 @@
 using System.Diagnostics;
+using Hearty_Bites.Data;
 using Microsoft.AspNetCore.Mvc;
 using UrbanSpoon.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace UrbanSpoon.Controllers;
 
 public class HomeController : Controller
 {
-    public IActionResult Index()
+    private readonly ApplicationDbContext _context;
+
+    public HomeController(ApplicationDbContext context)
     {
-        return View();
+        _context = context;
+    }
+    public async Task< IActionResult> Index()
+    {
+        var allCaterers = await _context.Caterers.ToListAsync();
+        return View(allCaterers);
+    }
+
+    public async Task<IActionResult> ShopDetails(int id)
+    {
+        var caterer = await _context.Caterers
+            .Include(c => c.MenuItems) 
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (caterer == null) return NotFound();
+
+        return View(caterer);
     }
 
     public IActionResult Privacy()

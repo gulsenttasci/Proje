@@ -19,17 +19,18 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
     
     options.User.RequireUniqueEmail = true; 
 })
+.AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<ApplicationDbContext>();
-// Add services to the container.
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    
     app.UseHsts();
 }
 
@@ -46,24 +47,43 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 
-//seed rol
+
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    
-    
+
+
     string[] roleNames = { "Caterer", "User" };
-    
+
     foreach (var roleName in roleNames)
     {
         var roleExist = await roleManager.RoleExistsAsync(roleName);
         if (!roleExist)
         {
-            
+
             await roleManager.CreateAsync(new IdentityRole(roleName));
         }
     }
 }
+
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        
+        await DbInitializer.SeedRolesAndAdminAsync(services);
+    }
+    catch (Exception ex)
+    {
+        
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Veritabanı seed işlemi sırasında bir hata oluştu.");
+    }
+}
+
+
 
 
 app.Run();

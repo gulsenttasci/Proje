@@ -6,63 +6,81 @@
     <title>@ViewData["Title"] - Hearty Bites</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-heart-fill text-danger"></i> Hearty Bites
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+  <header>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3" style="background-color: #F9F6F0; border-color: #E6DFD3 !important;">
+        <div class="container-fluid">
+            
+            <a class="navbar-brand fw-bold premium-font" asp-area="" asp-controller="Home" asp-action="Index" style="color: #7A2836; font-size: 1.5rem;">
+                Hearty Bites Catering Hub
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                
+                <ul class="navbar-nav flex-grow-1">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index" style="color: #3E322C;">Home</a>
+                    </li>
+                    
+                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
+                    {
+                        <li class="nav-item ms-2">
+                             <a class="nav-link fw-bold" asp-controller="Admin" asp-action="Dashboard" style="color: #7A2836;">
+                                <i class="bi bi-shield-lock-fill"></i> Admin Panel
+                             </a>
                         </li>
-                        </ul>
-                    <ul class="navbar-nav">
-                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                    }
+                </ul>
+
+                <ul class="navbar-nav">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <li class="nav-item">
+                            <span class="nav-link" style="color: #8C7361;">Welcome, @User.Identity.Name!</span>
+                        </li>
+                        
+                        @if (User.IsInRole("Caterer"))
                         {
-                                <li class="nav-item">
-                                    <span class="nav-link text-primary">Welcome, @User.Identity.Name!</span>
-                                </li>
-                                @if (User.IsInRole("Caterer"))
-                                {
-                                    <li class="nav-item">
-                                        <a class="nav-link text-dark fw-bold" asp-controller="Caterer" asp-action="Index">Manage My Shop</a>
-                                    </li>
-                                }
-                                @if (User.IsInRole("User"))
-                                {
-                                    <li class="nav-item">
-                                        <a class="nav-link text-dark" asp-controller="Home" asp-action="Explore">Look The Shops</a>
-                                    </li>
-                                }
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="Account" asp-action="Logout">Logout</a>
-                                </li>
+                            <li class="nav-item">
+                                <a class="nav-link fw-bold" asp-controller="Caterer" asp-action="Index" style="color: #3E322C;">Manage My Shop</a>
+                            </li>
                         }
-                        else
+                        
+                        @if (User.IsInRole("User"))
                         {
-                           <li class="nav-item">
-                                 <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
-                           </li>
-                           <li class="nav-item">
-                                 <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Sign Up</a>
-                           </li> 
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Home" asp-action="Explore" style="color: #3E322C;">Look The Shops</a>
+                            </li>
                         }
-                    </ul>
-                </div>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Account" asp-action="Logout" style="color: #3E322C;">Logout</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                             <a class="nav-link" asp-controller="Account" asp-action="Login" style="color: #3E322C;">Login</a>
+                        </li>
+                        <li class="nav-item ms-2">
+                             <a class="nav-link text-white px-3" asp-controller="Account" asp-action="Register" style="background-color: #7A2836; border-radius: 20px;">Sign Up</a>
+                        </li> 
+                    }
+                </ul>
             </div>
-        </nav>
-    </header>
+        </div>
+    </nav>
+</header>
 
     <div class="container">
         <main role="main" class="pb-3">
