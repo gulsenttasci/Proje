@@ -2,42 +2,46 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using Hearty_Bites.Data; 
+using Hearty_Bites.Data;
 using Hearty_Bites.Models;
+using Hearty_Bites.Services;
+using System.Text;
+
 
 namespace Hearty_Bites.Controllers
 {
-    
+
     [Authorize]
     public class CartController : Controller
     {
         private readonly ApplicationDbContext _context;
-
-        public CartController(ApplicationDbContext context)
+        private readonly IEmailService _emailService;
+        public CartController(ApplicationDbContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
-        
+
         [Authorize]
         public async Task<IActionResult> Index()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
-            
+
             var cartItems = await _context.CartItems
                 .Include(c => c.MenuItem)
                     .ThenInclude(m => m.Caterer)
                 .Where(c => c.UserId == userId)
                 .ToListAsync();
 
-           
+
             decimal cartTotal = cartItems.Sum(item => item.UnitPrice * item.Quantity);
             ViewBag.CartTotal = cartTotal;
 
             return View(cartItems);
         }
 
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
@@ -45,7 +49,7 @@ namespace Hearty_Bites.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
             string finalSummary = string.IsNullOrEmpty(customizationSummary) ? "Standard" : customizationSummary;
-            
+
             var menuItem = await _context.MenuItems.FirstOrDefaultAsync(m => m.Id == menuItemId);
             if (menuItem == null)
             {
@@ -53,19 +57,19 @@ namespace Hearty_Bites.Controllers
             }
 
             decimal actualPrice = (decimal)menuItem.Price;
-            
+
             var existingItem = await _context.CartItems
                 .FirstOrDefaultAsync(c => c.UserId == userId && c.MenuItemId == menuItemId && c.CustomizationSummary == finalSummary);
 
             if (existingItem != null)
             {
-                existingItem.Quantity = quantity >= 10 ? quantity : 50; 
+                existingItem.Quantity = quantity >= 10 ? quantity : 50;
                 existingItem.UnitPrice = actualPrice;
                 _context.CartItems.Update(existingItem);
             }
             else
             {
-                
+
                 var cartItem = new CartItem
                 {
                     UserId = userId,
@@ -79,10 +83,10 @@ namespace Hearty_Bites.Controllers
 
             await _context.SaveChangesAsync();
             TempData["SuccessMessage"] = "The catering package has been successfully added to your cart!";
-            return RedirectToAction("Index"); 
+            return RedirectToAction("Index");
         }
 
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
@@ -93,7 +97,7 @@ namespace Hearty_Bites.Controllers
 
             if (item != null)
             {
-                
+
                 if (quantity >= 10)
                 {
                     item.Quantity = quantity;
@@ -109,7 +113,7 @@ namespace Hearty_Bites.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
@@ -127,7 +131,7 @@ namespace Hearty_Bites.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-       
+
         [Authorize]
         public async Task<IActionResult> Checkout()
         {
@@ -148,6 +152,153 @@ namespace Hearty_Bites.Controllers
 
             return View(cartItems);
         }
-        
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize]
+        public async Task<IActionResult> ProcessOrder(DateTime eventDate, string deliveryAddress, string cardHolderName, string cardNumber, string expirationDate, string cvv)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+
+
+            if (eventDate < DateTime.Now)
+            {
+                TempData["ErrorMessage"] = "The event date cannot be in the past!";
+                return RedirectToAction(nameof(Checkout));
+            }
+
+            if (string.IsNullOrEmpty(deliveryAddress) || deliveryAddress.Length < 10)
+            {
+                TempData["ErrorMessage"] = "Please enter a valid and detailed delivery address.";
+                return RedirectToAction(nameof(Checkout));
+            }
+
+
+            var cleanCardNumber = cardNumber?.Replace(" ", "");
+            if (cleanCardNumber?.Length != 16 || string.IsNullOrEmpty(cvv) || cvv.Length != 3)
+            {
+                TempData["ErrorMessage"] = "Payment Authorization Failed! Invalid card numbers or CVV format.";
+                return RedirectToAction(nameof(Checkout));
+            }
+
+
+            var cartItems = await _context.CartItems
+                .Include(c => c.MenuItem)
+                .Where(c => c.UserId == userId)
+                .ToListAsync();
+
+            if (cartItems == null || !cartItems.Any())
+            {
+                TempData["ErrorMessage"] = "Your cart is empty. Cannot process order.";
+                return RedirectToAction("Index");
+            }
+
+            var firstItem = cartItems.FirstOrDefault();
+            int actualCatererId = firstItem?.MenuItem?.CatererId ?? 0;
+
+            if (actualCatererId == 0)
+            {
+                TempData["ErrorMessage"] = "System Error: The selected menu package does not have a valid Caterer assigned. Please re-add the item to your cart.";
+                return RedirectToAction("Index");
+            }
+
+            var currentCaterer = await _context.Caterers.FirstOrDefaultAsync(c => c.Id == actualCatererId);
+            if (currentCaterer == null)
+            {
+                TempData["ErrorMessage"] = "System Error: Caterer profile not found in database.";
+                return RedirectToAction("Index");
+            }
+
+            decimal totalAmount = cartItems.Sum(item => item.UnitPrice * item.Quantity);
+
+
+            var order = new Order
+            {
+                UserId = userId,
+                OrderDate = DateTime.Now,
+                EventDate = eventDate,
+                DeliveryAddress = deliveryAddress,
+                TotalAmount = totalAmount,
+                Status = "Confirmed",
+                CatererId = actualCatererId,
+                Caterer = currentCaterer
+            };
+
+            _context.Orders.Add(order);
+            await _context.SaveChangesAsync();
+
+            StringBuilder menuSummaryBuilder = new StringBuilder();
+
+            foreach (var item in cartItems)
+            {
+                var orderItem = new OrderItem
+                {
+                    OrderId = order.Id,
+                    MenuItemId = item.MenuItemId,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.UnitPrice,
+                    CustomizationSummary = item.CustomizationSummary
+                };
+                _context.OrderItems.Add(orderItem);
+
+
+                menuSummaryBuilder.Append($"- {item.MenuItem?.FoodName} (Qty: {item.Quantity}) ");
+                if (!string.IsNullOrEmpty(item.CustomizationSummary))
+                {
+                    menuSummaryBuilder.Append($"[{item.CustomizationSummary}]");
+                }
+                menuSummaryBuilder.Append("<br>");
+            }
+
+            _context.CartItems.RemoveRange(cartItems);
+            await _context.SaveChangesAsync();
+
+            string userEmail = User.FindFirstValue(ClaimTypes.Email) ?? User.Identity?.Name ?? "customer@gmail.com";
+            string customerName = cardHolderName ?? "Valued Client";
+            string assignedCaterer = currentCaterer.ShopName ?? "Independent Caterer Node";
+            string finalMenuText = menuSummaryBuilder.ToString();
+
+            var catererUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == currentCaterer.UserId);
+            string catererEmail = catererUser?.Email ?? "thecaterist.test.node@gmail.com"; 
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _emailService.SendOrderContractEmailAsync(userEmail, order, customerName, assignedCaterer, finalMenuText);
+
+                    await _emailService.SendOrderContractEmailAsync(catererEmail, order, customerName, assignedCaterer, finalMenuText);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"--> Background Email Logging: {ex.Message}");
+                }
+            });
+
+
+            return RedirectToAction(nameof(OrderSuccess), new { id = order.Id });
+        }
+
+
+
+        [Authorize]
+        public async Task<IActionResult> OrderSuccess(int id)
+        {
+
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.MenuItem)
+                .FirstOrDefaultAsync(o => o.Id == id);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            return View(order);
+        }
+
+
     }
 }

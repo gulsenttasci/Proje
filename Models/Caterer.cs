@@ -21,6 +21,8 @@ namespace Hearty_Bites.Models
         [ValidateNever]
         public string UserId { get; set; } = string.Empty;
 
+        public string Email { get; set; } = string.Empty;
+
         [ValidateNever]
         public User? User { get; set; }
         public bool IsDeleted { get; set; } = false;

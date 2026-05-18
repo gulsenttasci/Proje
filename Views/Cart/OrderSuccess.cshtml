@@ -1,0 +1,97 @@
+@model Hearty_Bites.Models.Order
+@{
+    ViewData["Title"] = "Order Confirmed";
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+
+<div class="container mt-5 mb-5 text-center">
+    <div class="mb-4 animate__animated animate__bounceIn">
+        <i class="bi bi-check-circle-fill text-success display-1"></i>
+        <h1 class="premium-font fw-bold mt-3" style="color: #3E322C;">Your Catering Order is Confirmed!</h1>
+        <p class="text-muted fs-5">Thank you for choosing Hearty Bites. Your event menu has been successfully dispatched to the caterer.</p>
+    </div>
+
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-8 text-start">
+            <div class="card border-0 shadow-sm rounded-4 p-5 bg-white border position-relative">
+                <div class="position-absolute top-0 end-0 m-4 opacity-25">
+                    <i class="bi bi-shield-fill-check display-3 text-success"></i>
+                </div>
+
+                <div class="border-bottom pb-3 mb-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="premium-font fw-bold text-dark m-0">RECEIPT / INVOICE</h4>
+                        <small class="text-muted">Order ID: #@Model.Id</small>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-success px-3 py-2 rounded-pill fw-bold">PAYMENT SUCCESS</span>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4 bg-light p-3 rounded-3" style="font-size: 0.9rem;">
+                    <div class="col-sm-6">
+                        <strong class="text-muted d-block mb-1">Order Date:</strong>
+                        <span class="text-dark fw-bold">@Model.OrderDate.ToString("f")</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <strong class="text-muted d-block mb-1">Event Logistics Date:</strong>
+                        <span class="text-danger fw-bold"><i class="bi bi-calendar3 me-1"></i> @Model.EventDate.ToString("g")</span>
+                    </div>
+                    <div class="col-md-12 border-top pt-2 mt-2">
+                        <strong class="text-muted d-block mb-1">Venue & Delivery Address:</strong>
+                        <span class="text-dark"><i class="bi bi-geo-alt-fill text-secondary me-1"></i> @Model.DeliveryAddress</span>
+                    </div>
+                </div>
+
+                <h6 class="fw-bold text-muted mb-3" style="letter-spacing: 1px;">BOOKED PACKAGES</h6>
+                <div class="table-responsive mb-4">
+                    <table class="table align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Menu Package</th>
+                                <th class="text-center">Guests</th>
+                                <th class="text-end">Unit Price</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.OrderItems)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="fw-bold text-dark d-block">@item.MenuItem?.FoodName</span>
+                                        @if (!string.IsNullOrEmpty(item.CustomizationSummary))
+                                        {
+                                            <small class="text-muted d-block mt-1" style="font-size: 0.8rem; font-style: italic;">
+                                                <i class="bi bi-gear-fill me-1"></i> @item.CustomizationSummary
+                                            </small>
+                                        }
+                                    </td>
+                                    <td class="text-center fw-bold">@item.Quantity</td>
+                                    <td class="text-end text-muted">@item.UnitPrice.ToString("C")</td>
+                                    <td class="text-end fw-bold text-dark">@((item.UnitPrice * item.Quantity).ToString("C"))</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                    <h5 class="fw-bold text-muted m-0">Amount Paid:</h5>
+                    <h3 class="fs-2 fw-bold m-0" style="color: #7A2836;">@Model.TotalAmount.ToString("C")</h3>
+                </div>
+            </div>
+
+            <div class="d-flex gap-3 justify-content-center mt-4">
+                <a asp-controller="Customer" asp-action="Index" class="btn btn-outline-dark rounded-pill px-4 fw-bold">
+                    <i class="bi bi-house-door-fill me-1"></i> Return Home
+                </a>
+                
+                <button onclick="window.print();" class="btn text-white rounded-pill px-4 fw-bold shadow-sm" style="background-color: #7A2836;">
+                    <i class="bi bi-printer-fill me-1"></i> Print Receipt
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

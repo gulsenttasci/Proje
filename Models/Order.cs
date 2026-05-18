@@ -15,6 +15,8 @@ namespace Hearty_Bites.Models
 
         public DateTime OrderDate { get; set; } = DateTime.Now;
 
+        public DateTime EventDate { get; set; }
+
         [Column(TypeName = "decimal(18,2)")]
         public decimal TotalAmount { get; set; }
 
