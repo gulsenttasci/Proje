@@ -1,0 +1,136 @@
+@model Hearty_Bites.Models.MenuItem
+
+@{
+    ViewData["Title"] = "Manage Customizations";
+    List<CustomizationGroup>? existingGroups = ViewBag.CustomizationGroups as List<Hearty_Bites.Models.CustomizationGroup>;
+}
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+        <div>
+            <h2 class="premium-font fw-bold text-dark">
+                <i class="bi bi-sliders text-danger me-2"></i> Menu Customization Wizard
+            </h2>
+            <p class="text-muted mb-0">Configure specific selections and add-ons for: <strong>@Model.FoodName</strong>
+            </p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4 shadow-sm">
+            <i class="bi bi-arrow-left me-1"></i> Back To Panel
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm mb-4" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 rounded-4 p-4" style="background-color: #F9F6F0; min-height: 400px;">
+                <h5 class="fw-bold mb-4 text-muted border-bottom pb-2" style="font-size: 0.9rem; letter-spacing: 1px;">
+                    CURRENT CONFIGURATION
+                </h5>
+                @if (existingGroups == null || !existingGroups.Any())
+                {
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-layers display-5 d-block mb-3 text-secondary-subtle"></i>
+                        <p class="mb-0">No customizations created yet for this package.</p>
+                        <small>Use the form on the right to add choices.</small>
+                    </div>
+                }
+                else
+                {
+                    <div class="accordion border-0" id="customizationAccordion">
+                        @for (int i = 0; i < existingGroups.Count; i++)
+                        {
+                            CustomizationGroup? group = existingGroups[i];
+                            <div class="accordion-item border rounded-3 mb-3 bg-white shadow-sm overflow-hidden">
+                                <h2 class="accordion-header" id="heading-@group.Id">
+                                    <button class="accordion-button fw-bold text-dark shadow-none @(i == 0 ? "" : "collapsed")"
+                                            type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@group.Id"
+                                            aria-expanded="@(i == 0 ? "true" : "false")" aria-controls="collapse-@group.Id"
+                                            style="background-color: #fff; color: #7A2836 !important;">
+                                        <i class="bi bi-folder-fill me-2 text-warning"></i> @group.GroupName
+                                        <span class="badge bg-secondary ms-2 rounded-pill">@group.Options?.Count
+                                            options</span>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse-@group.Id" class="accordion-collapse collapse @(i == 0 ? "show" : "")"
+                                         aria-labelledby="heading-@group.Id" data-bs-parent="#customizationAccordion">
+                                        <div class="accordion-body p-0">
+                                            <ul class="list-group list-group-flush">
+                                                @if (group.Options != null && group.Options.Any())
+                                                {
+                                                    foreach (var option in group.Options)
+                                                    {
+                                                        <li
+                                                            class="list-group-item py-2 px-4 d-flex justify-content-between align-items-center bg-transparent">
+                                                            <span class="text-muted"><i class="bi bi-dot me-1 text-danger"></i>
+                                                                @option.OptionName</span>
+                                                                <span class="badge bg-light text-dark border rounded-pill small">Active</span>
+                                                            </li>
+                                                        }
+                                                    }
+                                            else
+                                                    {
+                                                        <li class="list-group-item text-muted small py-2 px-4"> bu gruba bir sey yazmadimmkii</li>
+                                                        }
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white border">
+                            <h4 class="premium-font fw-bold mb-4" style="color: #7A2836;"><i class="bi bi-plus-circle me-2"></i>Add
+                                Selection Group & Choice</h4>
+
+                                <form asp-action="AddCustomizationOption" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="menuItemId" value="@Model.Id" />
+
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold text-dark">1. Customization Group Name</label>
+                                        <select class="form-select rounded-3 py-2 border-secondary-subtle shadow-none" name="groupName"
+                                                required>
+                                            <option value="Main Course Selection">Main Course Alternative (e.g., Beef, Chicken, Fish)
+                                            </option>
+                                            <option value="Appetizer Choices">Appetizer Choices (e.g., Hot, Cold mezes)</option>
+                                            <option value="Premium Add-ons">Premium Add-ons (e.g., Waiter Staff, Decor Setup)</option>
+                                            <option value="Beverage Package">Beverage Package Options</option>
+                                        </select>
+                                        <div class="form-text text-muted">Choose the top category that you want to offer to the customer.</div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold text-dark">2. Option / Item Name</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light text-muted"><i
+                                                class="bi bi-pencil-square"></i></span>
+                                                <input type="text" name="optionName"
+                                                       class="form-control py-2 shadow-none border-secondary-subtle"
+                                                       placeholder="Örn: Kuzu Tandır, Vejetaryen Lazanya veya Garson Hizmeti" required />
+                                            </div>
+                                            <div class="form-text text-muted">Write the exact name of the option that the customer will see and select on the screen.</div>
+                                            </div>
+
+                                            <div class="text-end mt-4 pt-3 border-top">
+                                                <button type="submit" class="btn text-white rounded-pill px-5 py-2 fw-bold shadow"
+                                                        style="background-color: #7A2836;">
+                                                    <i class="bi bi-check-lg me-2"></i>Save Option Configuration
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Hearty_Bites.Models
 {
-    public class CustomizationOption
+    public class CustamizationOption
     {
         [Key]
         public int Id { get; set; }

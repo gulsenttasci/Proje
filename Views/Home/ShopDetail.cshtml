@@ -1,20 +1,20 @@
 @model Hearty_Bites.Models.Caterer
 
 @{
-    ViewData["Title"] = Model.ShopName + " - Menu";
+    ViewData["Title"] = Model.ShopName + " - Menus";
+    var menus = ViewBag.Menus as List<Hearty_Bites.Models.MenuItem>;
 }
 
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-    
-    .premium-font { 
-        font-family: 'Playfair Display', serif; 
-        color:#3E322C;
+    .premium-font {
+        font-family: 'Playfair Display', serif;
+        color: #3E322C;
     }
-    
+
     .caterer-hero {
-        background-color: #faf9f8; 
+        background-color: #faf9f8;
         padding: 80px 0;
         border-bottom: 1px solid #E6DFD3;
     }
@@ -30,83 +30,164 @@
     }
 
     .menu-item:hover {
-        background-color: #FDFBF8; 
+        background-color: #FDFBF8;
     }
 
     .food-price {
-        color: #7A2836; 
-        font-weight:600;
+        color: #7A2836;
+        font-weight: 600;
         font-size: 1.2rem;
-        font-family: 'Courier New', Courier, monospace; 
+        font-family: 'Courier New', Courier, monospace;
     }
 
-    .badge-custom{
-        background-color: :#fff;
+    .badge-custom {
+        background-color: #fff;
         color: #8c7361;
-        border:1px solid #E6DFD3;
+        border: 1px solid #E6DFD3;
     }
 
-    .accent-line{
-        width:50 px;
-        height:2 px;
+    .accent-line {
+        width: 50px;
+        height: 2px;
         background-color: #7A2836;
-        margin:15 px auto;
+        margin: 15px auto;
     }
-
 </style>
 
-<div class="caterer-hero text-center mb-5">
-    <div class="container">
-        <h1 class="premium-font display-4 fw-bold mb-3">@Model.ShopName</h1>
-        <p class="lead text-muted mx-auto" style="max-width: 600px; font-weight: 300;">
-            @Model.Description
-        </p>
-        <div class="mt-4">
-
-            <span class="badge badge-custom py-2 px-3 fw-normal me-2">
-                <i class="bi bi-star-fill" style="color: #8C7361;"></i> 4.8 / 5.0
-            </span>
-            <span class="badge badge-custom py-2 px-3 fw-normal">
-                <i class="bi bi-geo-alt"></i> Ankara & Surrounding Areas
-            </span>
-
-            <div class="accent-line"></div>
-           
+<div class="container-fluid px-0" style="margin-top: -20px;">
+    <div class="p-5 text-center shadow-sm"
+         style="background: linear-gradient(135deg, #3E322C 0%, #1A1412 100%); color: #F9F6F0;">
+        <span class="badge bg-warning text-dark mb-2 fw-bold px-3 py-2 rounded-pill"><i
+            class="bi bi-patch-check-fill me-1"></i> VERIFIED CATERER</span>
+            <h1 class="premium-font display-4 fw-bold text-white">@Model.ShopName</h1>
+            <p class="lead text-white-50 mx-auto" style="max-width: 600px;">@Model.Description</p>
+            <div class="d-flex justify-content-center gap-4 mt-3 text-muted" style="font-size: 0.95rem;">
+                <span>
+                    <i class="bi bi-geo-alt-fill text-danger me-1"></i> 
+                    <span style="color: #F9F6F0 !important; font-weight: 500;">@Model.Address</span>
+                </span>
+                <span style="color: rgba(249, 246, 240, 0.4) !important;">|</span>
+                <span>
+                    <i class="bi bi-people-fill text-info me-1"></i> 
+                    <span style="color: #F9F6F0 !important; font-weight: 500;">Capacity: 20 - 1000 Guests</span>
+                </span>
+            </div>
         </div>
     </div>
-</div>
 
-<div class="container mb-5">
-    <div class="text-center mb-5">
-        <h2 class="premium-font h1">Curated Menu</h2>
-        <div style="width: 50px; height: 2px; background-color: #d81b60; margin: 15px auto;"></div>
-    </div>
+    <div class="container mt-5 mb-5">
+        <h3 class="premium-font mb-4 text-center" style="color: #3E322C;">Available Catering Packages</h3>
 
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            
-            @if (Model.MenuItems == null || !Model.MenuItems.Any())
-            {
-                <div class="text-center text-muted p-5 border rounded bg-light">
-                    This caterer is currently refining their menu. Please check back later.
-                </div>
-            }
-            else
-            {
-                @foreach (var item in Model.MenuItems)
+        @if (menus == null || !menus.Any())
+        {
+            <div class="alert alert-info text-center rounded-4 p-4">
+                <i class="bi bi-info-circle display-6 d-block mb-2"></i>
+                This caterer hasn't posted any menus yet. Check back soon!
+            </div>
+        }
+        else
+        {
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+                @foreach (var menu in menus)
                 {
-                    <div class="menu-item d-flex justify-content-between align-items-center">
-                        <div class="pe-4">
-                            <h5 class="fw-bold mb-1" style="color: #2c3e50;">@item.FoodName</h5>
-                            <small class="text-muted" style="line-height: 1.6;">@item.Description</small>
-                        </div>
-                        <div class="food-price text-end">
-                            @item.Price.ToString("C")
-                        </div>
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm rounded-4 position-relative overflow-hidden"
+                             style="background-color: #F9F6F0;">
+
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <h4 class="card-title premium-font fw-bold mb-1" style="color: #7A2836;">@menu.FoodName</h4>
+                                        <span class="badge bg-white text-dark border rounded-pill px-3 py-1 text-muted"
+                                              style="font-size: 0.8rem;">Customizable Package</span>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="fs-4 fw-bold d-block food-price">@menu.Price.ToString("C")</span>
+                                        <small class="text-muted d-block">per guest</small>
+                                    </div>
+                                </div>
+
+                                <p class="card-text text-muted mb-4">@menu.Description</p>
+
+                                <form asp-controller="Cart" asp-action="AddToCart" method="post" id="form-@menu.Id">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="menuItemId" value="@menu.Id" />
+                                    <input type="hidden" name="unitPrice" value="@menu.Price" />
+                                    <input type="hidden" name="customizationSummary" id="summary-@menu.Id" value="" />
+
+                                    @if (menu.CustomizationGroups != null && menu.CustomizationGroups.Any())
+                                    {
+                                        <div class="p-3 bg-white rounded-3 border mb-3">
+                                            <h6 class="fw-bold mb-3" style="color: #8C7361;"><i class="bi bi-sliders me-2"></i>Configure
+                                                Event Options</h6>
+
+                                                @foreach (var group in menu.CustomizationGroups.Where(g => !g.IsDeleted))
+                                                {
+                                                    <div class="mb-3">
+                                                        <label class="form-label small fw-bold text-muted">@group.GroupName:</label>
+
+                                                        <select class="form-select form-select-sm opt-select" data-menu-id="@menu.Id">
+                                                            @if (group.Options != null && group.Options.Any())
+                                                            {
+                                                                foreach (var option in group.Options)
+                                                                {
+                                                                    <option value="@group.GroupName: @option.OptionName">@option.OptionName</option>
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                <option value="">Standard Option (No alternatives)</option>
+                                                            }
+                                                        </select>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+
+                                        <div class="row align-items-center g-2">
+                                            <div class="col-sm-5">
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-light text-muted small"><i
+                                                        class="bi bi-people"></i></span>
+                                                        <input type="number" name="quantity" class="form-control" placeholder="Guests"
+                                                               min="10" max="1000" value="50" required title="Minimum 10 guests required" />
+                                                    </div>
+                                                    <small class="text-muted small" style="font-size: 0.75rem;">Min: 10 guests</small>
+                                                </div>
+                                                <div class="col-sm-7">
+                                                    <button type="submit" onclick="compileCustomizations(@menu.Id)"
+                                                            class="btn text-white w-100 rounded-pill fw-bold"
+                                                            style="background-color: #7A2836;">
+                                                        <i class="bi bi-cart-plus-fill me-2"></i>Book Catering Package
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </form>
+
+                                    </div>
+                                </div>
+                            </div>
+                        }
                     </div>
                 }
-            }
+            </div>
 
-        </div>
-    </div>
-</div>
+            @section Scripts {
+                <script>
+                    function compileCustomizations(menuId) {
+                        let summaryParts = [];
+
+            
+                        let selects = document.querySelectorAll(`select.opt-select[data-menu-id="${menuId}"]`);
+                        selects.forEach(select => {
+                            if (select.value) {
+                                summaryParts.push(select.value);
+                            }
+                        });
+
+                        let finalSummary = summaryParts.join(", ");
+
+                        document.getElementById(`summary-${menuId}`).value = finalSummary;
+                    }
+                </script>
+            }

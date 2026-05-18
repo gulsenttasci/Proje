@@ -25,6 +25,9 @@ namespace Hearty_Bites.Models
         public User? User { get; set; }
         public bool IsDeleted { get; set; } = false;
 
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
+
         [ValidateNever]
         public ICollection<MenuItem> MenuItems { get; set; } = new List<MenuItem>();
     }

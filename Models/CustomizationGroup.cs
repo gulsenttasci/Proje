@@ -18,6 +18,6 @@ namespace Hearty_Bites.Models
         
         public bool IsMultipleChoice { get; set; }
         public bool IsDeleted { get; set; } = false;
-        public List<CustomizationOption> Options { get; set; } = new List<CustomizationOption>();
+        public List<CustamizationOption> Options { get; set; } = new List<CustamizationOption>();
     }
 }

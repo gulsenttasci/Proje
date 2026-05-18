@@ -1,10 +1,10 @@
 using System.Diagnostics;
 using Hearty_Bites.Data;
 using Microsoft.AspNetCore.Mvc;
-using UrbanSpoon.Models;
+using Hearty_Bites.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace UrbanSpoon.Controllers;
+namespace Hearty_Bites.Controllers;
 
 public class HomeController : Controller
 {
@@ -23,12 +23,19 @@ public class HomeController : Controller
     public async Task<IActionResult> ShopDetails(int id)
     {
         var caterer = await _context.Caterers
-            .Include(c => c.MenuItems) 
-            .FirstOrDefaultAsync(c => c.Id == id);
+            .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
 
         if (caterer == null) return NotFound();
 
-        return View(caterer);
+        var menus = await _context.MenuItems
+            .Include(m => m.CustomizationGroups)
+                .ThenInclude(g => g.Options) 
+            .Where(m => m.CatererId == id && !m.IsDeleted)
+            .ToListAsync();
+
+        ViewBag.Menus = menus;
+
+        return View("ShopDetail",caterer);
     }
 
     public IActionResult Privacy()
@@ -41,4 +48,20 @@ public class HomeController : Controller
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
+
+    [HttpGet]
+    public async Task<JsonResult> GetNearbyCaterers(double userLat, double userLng)
+    {
+   
+        var caterers = await _context.Caterers
+            .Select(c => new {
+                c.Id,
+                c.ShopName,
+                c.Latitude,
+                c.Longitude
+            
+            }).ToListAsync();
+
+        return Json(caterers);
+}
 }

@@ -5,8 +5,8 @@ using Hearty_Bites.Models;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Http;   
-using Microsoft.AspNetCore.Hosting; 
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Hearty_Bites.Controllers
 {
@@ -21,7 +21,7 @@ namespace Hearty_Bites.Controllers
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public async Task< IActionResult >Index()
+        public async Task<IActionResult> Index()
         {
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -29,7 +29,7 @@ namespace Hearty_Bites.Controllers
             var shop = _context.Caterers
             .Include(c => c.MenuItems.Where(m => !m.IsDeleted))
             .FirstOrDefault(c => c.UserId == userId);
-            
+
             if (shop == null) return RedirectToAction("CreateProfile");
             return View(shop);
         }
@@ -79,10 +79,10 @@ namespace Hearty_Bites.Controllers
             var caterer = _context.Caterers.FirstOrDefault(c => c.UserId == userId);
 
             if (caterer == null) return NotFound();
-            
+
             if (ModelState.IsValid)
             {
-                
+
                 if (imageFile != null)
                 {
                     string wwwRootPath = _webHostEnvironment.WebRootPath;
@@ -102,11 +102,13 @@ namespace Hearty_Bites.Controllers
                 _context.MenuItems.Add(menuItem);
                 await _context.SaveChangesAsync();
 
-               
-                return RedirectToAction("ManageCustomizations", new { id = menuItem.Id });
+                TempData["SuccessMessage"] = "New catering menu package has been successfully added!";
+
+
+                return RedirectToAction(nameof(Index));
             }
             return View(menuItem);
-            
+
         }
 
         [HttpGet]
@@ -118,13 +120,13 @@ namespace Hearty_Bites.Controllers
 
 
             if (food == null) return NotFound();
-            
+
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var caterer = await _context.Caterers.FirstOrDefaultAsync(c => c.UserId == userId);
 
             if (!User.IsInRole("Admin") && (caterer == null || food.CatererId != caterer.Id))
             {
-                return Forbid(); 
+                return Forbid();
             }
             return View(food);
         }
@@ -142,26 +144,26 @@ namespace Hearty_Bites.Controllers
                 {
                     var existingFood = await _context.MenuItems.AsNoTracking().FirstOrDefaultAsync(m => m.Id == id);
                     if (existingFood == null) return NotFound();
-                    
+
                     if (imageFile != null)
                     {
                         string wwwRootPath = _webHostEnvironment.WebRootPath;
                         string fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
                         string productPath = Path.Combine(wwwRootPath, @"images\menu-items");
 
-                
-                    if (!string.IsNullOrEmpty(existingFood.ImageUrl))
-                    {
-                        var oldImagePath = Path.Combine(wwwRootPath, existingFood.ImageUrl.TrimStart('\\'));
-                        if (System.IO.File.Exists(oldImagePath)) System.IO.File.Exists(oldImagePath);
-                    }
 
-                
-                    using (var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
-                    {
-                        await imageFile.CopyToAsync(fileStream);
-                    }
-                    model.ImageUrl = @"\images\menu-items\" + fileName;
+                        if (!string.IsNullOrEmpty(existingFood.ImageUrl))
+                        {
+                            var oldImagePath = Path.Combine(wwwRootPath, existingFood.ImageUrl.TrimStart('\\'));
+                            if (System.IO.File.Exists(oldImagePath)) System.IO.File.Exists(oldImagePath);
+                        }
+
+
+                        using (var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
+                        {
+                            await imageFile.CopyToAsync(fileStream);
+                        }
+                        model.ImageUrl = @"\images\menu-items\" + fileName;
                     }
                     else
                     {
@@ -193,6 +195,61 @@ namespace Hearty_Bites.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
+
+
+        [Authorize(Roles = "Caterer")]
+        public async Task<IActionResult> ManageCustomizations(int id)
+        {
+
+            var menuItem = await _context.MenuItems
+                .FirstOrDefaultAsync(m => m.Id == id && !m.IsDeleted);
+
+            if (menuItem == null)
+            {
+                return NotFound();
+            }
+
+            var existingGroups = await _context.CustomizationGroups
+                .Include(g => g.Options)
+                .Where(g => g.MenuItemId == id)
+                .ToListAsync();
+
+            ViewBag.CustomizationGroups = existingGroups;
+            return View(menuItem);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Caterer")]
+        public async Task<IActionResult> AddCustomizationOption(int menuItemId, string groupName, string optionName)
+        {
+            var group = await _context.CustomizationGroups
+                .FirstOrDefaultAsync(g => g.MenuItemId == menuItemId && g.GroupName == groupName);
+            if (group == null)
+            {
+                group = new CustomizationGroup
+                {
+                    GroupName = groupName,
+                    MenuItemId = menuItemId
+                };
+                _context.CustomizationGroups.Add(group);
+                await _context.SaveChangesAsync();
+            }
+
+            var option = new CustamizationOption
+            {
+                OptionName = optionName,
+                CustomizationGroupId = group.Id
+            };
+
+            _context.CustamizationOptions.Add(option);
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = $"Opsiyon başarıyla kaydedildi: {groupName} -> {optionName}";
+            return RedirectToAction(nameof(Index));
+
+        }
     }
+
 
 }

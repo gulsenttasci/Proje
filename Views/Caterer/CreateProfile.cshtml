@@ -5,19 +5,19 @@
 }
 
 <div class="container mt-5">
-    <h2>Create Your Shop Profile🌸</h2>
+    <h2>Create Your Shop Profile</h2>
     <p class="text-muted">Fill in your details to take your place in our free, authentic community.</p>
     <hr />
 
     <form asp-action="CreateProfile">
         <div asp-validation-summary="All" class="text-danger mb-3"></div>
         <div class="mb-3">
-            <label asp-for="ShopName" class="form-label">Shop Name</label>
+            <label asp-for="ShopName" class="form-label">Catering Name</label>
             <input asp-for="ShopName" class="form-control" placeholder="Örn: Ayse's Kitchen" />
         </div>
 
         <div class="mb-3">
-            <label asp-for="Description" class="form-label">About Your Shop</label>
+            <label asp-for="Description" class="form-label">About Your Catering</label>
             <textarea asp-for="Description" class="form-control" rows="3" placeholder="Tell us about yourself and your products..."></textarea>
         </div>
 
@@ -33,5 +33,77 @@
              </button>
              <a asp-action="Index" class="btn btn-link text-muted text-decoration-none">Cancel</a>
          </div>
+
+         <div class="mb-4">
+            <label asp-for="Address" class="form-label premium-font fw-bold" style="color: #8C7361;">
+                <i class="bi bi-geo-alt me-2"></i>Full Shop Address
+            </label>
+            <textarea asp-for="Address" id="shopAddress" class="form-control px-3 py-2 shadow-none" rows="3" placeholder="e.g., Kavaklıdere, Tunalı Hilmi Cd. No:1, Çankaya/Ankara" style="border: 1px solid #E6DFD3; background-color: #F9F6F0;"></textarea>
+    
+            <button type="button" id="btnFindOnMap" class="btn btn-sm mt-2 text-white rounded-pill px-3" style="background-color: #7A2836;">
+               <i class="bi bi-search me-1"></i> Verify with Google Maps
+            </button>
+        </div>
+
+        <input type="hidden" asp-for="Latitude" id="Latitude" />
+        <input type="hidden" asp-for="Longitude" id="Longitude" />
+
+        <div id="shopMap" class="shadow-sm mb-4" style="height: 300px; border-radius: 12px; border: 1px solid #E6DFD3; z-index: 1;"></div>
+        <small class="text-muted d-block mb-4"><i class="bi bi-info-circle me-1"></i> Powered by Google Maps. Type your address and click "Verify" to pin your location.</small>
+
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDkr_W9Vi75m18VOxqyN7hg04JZxvbIHEs&callback=initMap&loading=async" async defer></script>
+
+        <script>
+            let map;
+            let marker;
+            let geocoder;
+
+    
+            window.initMap = function() {
+                const ankara = { lat: 39.9208, lng: 32.8541 };
+        
+                map = new google.maps.Map(document.getElementById("shopMap"), {
+                    zoom: 12,
+                    center: ankara,
+                    mapTypeControl: false
+                });
+
+                geocoder = new google.maps.Geocoder();
+
+                document.getElementById('btnFindOnMap').addEventListener('click', function() {
+                    const address = document.getElementById('shopAddress').value;
+            
+                    if(address.length < 5) {
+                        alert("Lütfen geçerli bir açık adres girin.");
+                        return;
+                    }
+
+                    geocoder.geocode({ 'address': address }, function(results, status) {
+                        if (status === 'OK') {
+                            const location = results[0].geometry.location;
+                    
+                            map.setCenter(location);
+                            map.setZoom(16);
+                    
+                            if (marker) {
+                                marker.setMap(null);
+                            }
+                            marker = new google.maps.Marker({
+                                map: map,
+                                position: location,
+                                animation: google.maps.Animation.DROP
+                            });
+
+                   
+                            document.getElementById('Latitude').value = location.lat();
+                            document.getElementById('Longitude').value = location.lng();
+                    
+                        } else {
+                            alert('Haritada tam konum bulunamadı: ' + status);
+                        }
+                    });
+                });
+            };
+        </script>
     </form>
 </div>

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Hearty_Bites.Models;
 using System.Linq;
 using Hearty_Bites.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Hearty_Bites.Controllers
 {

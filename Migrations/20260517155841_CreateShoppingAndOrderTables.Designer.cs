@@ -4,6 +4,7 @@ using Hearty_Bites.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace UrbanSpoon.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260517155841_CreateShoppingAndOrderTables")]
+    partial class CreateShoppingAndOrderTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,7 +54,7 @@ namespace UrbanSpoon.Migrations
 
                     b.HasIndex("MenuItemId");
 
-                    b.ToTable("CartItems", (string)null);
+                    b.ToTable("CartItems");
                 });
 
             modelBuilder.Entity("Hearty_Bites.Models.Caterer", b =>
@@ -132,34 +135,6 @@ namespace UrbanSpoon.Migrations
                     b.ToTable("Comments");
                 });
 
-            modelBuilder.Entity("Hearty_Bites.Models.CustamizationOption", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("AdditionalPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("CustomizationGroupId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("OptionName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomizationGroupId");
-
-                    b.ToTable("CustamizationOptions");
-                });
-
             modelBuilder.Entity("Hearty_Bites.Models.CustomizationGroup", b =>
                 {
                     b.Property<int>("Id")
@@ -185,7 +160,35 @@ namespace UrbanSpoon.Migrations
 
                     b.HasIndex("MenuItemId");
 
-                    b.ToTable("CustomizationGroups");
+                    b.ToTable("CustomizationGroup");
+                });
+
+            modelBuilder.Entity("Hearty_Bites.Models.CustomizationOption", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("AdditionalPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("CustomizationGroupId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("OptionName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomizationGroupId");
+
+                    b.ToTable("CustomizationOption");
                 });
 
             modelBuilder.Entity("Hearty_Bites.Models.MenuItem", b =>
@@ -544,17 +547,6 @@ namespace UrbanSpoon.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Hearty_Bites.Models.CustamizationOption", b =>
-                {
-                    b.HasOne("Hearty_Bites.Models.CustomizationGroup", "CustomizationGroup")
-                        .WithMany("Options")
-                        .HasForeignKey("CustomizationGroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CustomizationGroup");
-                });
-
             modelBuilder.Entity("Hearty_Bites.Models.CustomizationGroup", b =>
                 {
                     b.HasOne("Hearty_Bites.Models.MenuItem", "MenuItem")
@@ -564,6 +556,17 @@ namespace UrbanSpoon.Migrations
                         .IsRequired();
 
                     b.Navigation("MenuItem");
+                });
+
+            modelBuilder.Entity("Hearty_Bites.Models.CustomizationOption", b =>
+                {
+                    b.HasOne("Hearty_Bites.Models.CustomizationGroup", "CustomizationGroup")
+                        .WithMany("Options")
+                        .HasForeignKey("CustomizationGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CustomizationGroup");
                 });
 
             modelBuilder.Entity("Hearty_Bites.Models.MenuItem", b =>
