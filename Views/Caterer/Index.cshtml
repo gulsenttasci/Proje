@@ -1,56 +1,165 @@
 @model Hearty_Bites.Models.Caterer
-<div class="container mt-5 mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4 pb-3" style="border-bottom: 2px solid #E6DFD3;">
-        <div>
-            <h1 class="premium-font mb-0" style="color: #3E322C;">Dashboard</h1>
-            <p class="text-muted mb-0 mt-1" style="color: #8C7361 !important;">Managing menu for <strong style="color: #7A2836;">@Model.ShopName</strong></p>
-        </div>
-        <a asp-action="AddFood" class="btn btn-primary-custom rounded-pill shadow-sm">
-            <i class="bi bi-plus-lg me-1"></i> Add New Dish
-        </a>
-    </div>
 
-    <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
-        <div class="card-header bg-white py-3" style="border-bottom: 1px solid #E6DFD3;">
-            <h4 class="premium-font mb-0" style="color: #8C7361;"><i class="bi bi-card-list me-2"></i> Your Active Menu</h4>
+@{
+    ViewData["Title"] = "Caterer Master Dashboard";
+}
+
+<div class="container-fluid py-5" style="background-color: #F9F6F0; min-height: 100vh;">
+    <div class="container">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert" style="border-radius: 15px;">
+                <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <div class="d-flex justify-content-between align-items-center mb-5 pb-3" style="border-bottom: 2px solid #E6DFD3;">
+            <div>
+                <h1 class="premium-font fw-bold" style="color: #3E322C;">Dashboard</h1>
+                <p class="text-muted mb-0 mt-1" style="color: #8C7361 !important;">
+                    Managing operations for <strong style="color: #7A2836;">@Model.ShopName</strong>
+                </p>
+            </div>
+            <div class="d-flex gap-2">
+                <a asp-action="IncomingOrders" class="btn btn-outline-dark rounded-pill px-4 shadow-sm">
+                    <i class="bi bi-bell-fill text-warning me-1"></i> Live Orders
+                </a>
+                <a asp-action="AddFood" class="btn text-white rounded-pill px-4 shadow-sm" style="background-color: #7A2836;">
+                    <i class="bi bi-plus-lg me-1"></i> Add New Menu
+                </a>
+            </div>
         </div>
-        
-        <div class="card-body p-0">
-            @if (Model.MenuItems != null && Model.MenuItems.Any())
-            {
-                <div class="list-group list-group-flush">
-                    @foreach (var item in Model.MenuItems)
-                    {
-                        <div class="list-group-item d-flex justify-content-between align-items-center py-4" style="transition: background-color 0.2s;">
-                            <div class="pe-3">
-                                <h5 class="fw-bold mb-1" style="color: #3E322C;">@item.FoodName</h5>
-                                <small class="text-muted d-block mb-2">@item.Description</small>
-                                <span class="badge" style="background-color: #F9F6F0; color: #7A2836; border: 1px solid #E6DFD3; font-family: 'Courier New', monospace; font-size: 0.9rem;">
-                                    @item.Price.ToString("C")
-                                </span>
-                            </div>
-                            
-                            <div class="btn-group shadow-sm" role="group">
-                                <a asp-action="EditFood" asp-route-id="@item.Id" class="btn btn-sm btn-light border" style="color: #8C7361;">
-                                    <i class="bi bi-pencil-square"></i> Edit
-                                </a>
-                                <a asp-action="DeleteFood" asp-route-id="@item.Id" class="btn btn-sm btn-light border text-danger"
-                                   onclick="return confirm('Are you sure you want to delete @item.FoodName from your menu?')">
-                                    <i class="bi bi-trash3-fill"></i> Delete
-                                </a>
-                            </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm p-4 text-center h-100" style="border-radius: 20px; border-left: 5px solid #7A2836 !important; background-color: #fff;">
+                    <small class="text-uppercase fw-bold text-muted mb-2 d-block" style="color: #8C7361;">Total Revenue</small>
+                    <h2 class="fw-bold" style="color: #3E322C;">@ViewBag.TotalRevenue.ToString("N2") ₺</h2>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm p-4 text-center h-100" style="border-radius: 20px; background-color: #fff;">
+                    <small class="text-uppercase fw-bold text-muted mb-2 d-block" style="color: #8C7361;">Active Menus</small>
+                    <h2 class="fw-bold" style="color: #3E322C;">@ViewBag.TotalDishes</h2>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm p-4 text-center h-100" style="border-radius: 20px; background-color: #3E322C;">
+                    <small class="text-uppercase fw-bold text-white-50 mb-2 d-block">Average Catering Rating</small>
+                    <h2 class="fw-bold text-white">
+                        <i class="bi bi-star-fill text-warning small ms-1"></i> @ViewBag.AvgRating.ToString("F1") <span class="fs-5 text-white-50">/ 5.0</span>
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-5">
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: 24px;">
+                    <h4 class="fw-bold mb-4" style="color: #3E322C;"><i class="bi bi-shop me-2 text-secondary"></i> Caterer Profile</h4>
+                    
+                    <div class="text-center mb-4">
+                        <div class="mx-auto shadow-sm mb-3 d-flex align-items-center justify-content-center" 
+                             style="width: 180px; height: 180px; border-radius: 20px; border: 2px dashed #8C7361; background-color: #f8f9fa; overflow: hidden;">
+                            @if (string.IsNullOrEmpty(Model.ImageUrl))
+                            {
+                                <i class="bi bi-camera-fill text-muted" style="font-size: 3rem;"></i>
+                            }
+                            else
+                            {
+                                <img src="@Model.ImageUrl" alt="Shop Image" style="width: 100%; height: 100%; object-fit: cover;"/>
+                            }
                         </div>
-                    }
+                        <small class="text-muted d-block">Manage your storefront image from settings.</small>
+                    </div>
+
+                    <hr class="text-muted">
+
+                    <div class="mb-3">
+                        <label class="small fw-bold text-muted">Registered Business Name</label>
+                        <p class="mb-0 fw-bold" style="color: #7A2836; font-size:1.1rem;">@Model.ShopName</p>
+                    </div>
+                    <div class="mb-0">
+                        <label class="small fw-bold text-muted">Base Operations Address</label>
+                        <p class="mb-0">@Model.Address</p>
+                    </div>
                 </div>
-            }
-            else
-            {
-                <div class="text-center p-5">
-                    <i class="bi bi-egg-fried display-1" style="color: #E6DFD3;"></i>
-                    <h5 class="mt-3 premium-font" style="color: #8C7361;">Your menu is empty</h5>
-                    <p class="text-muted">Start adding delicious dishes to attract customers.</p>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm" style="border-radius: 24px; overflow: hidden;">
+                    <div class="card-header bg-white p-4" style="border-bottom: 1px solid #E6DFD3;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4 class="premium-font mb-0 fw-bold" style="color: #3E322C;"><i class="bi bi-card-list me-2" style="color: #8C7361;"></i> Active Menu Packages</h4>
+                            <span class="badge rounded-pill bg-light text-dark px-3 py-2 border shadow-sm">Total: @ViewBag.TotalDishes</span>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-0">
+                        @if (Model.MenuItems != null && Model.MenuItems.Any())
+                        {
+                            <div class="list-group list-group-flush">
+                                @foreach (var item in Model.MenuItems)
+                                {
+                                    <div class="list-group-item d-flex justify-content-between align-items-center py-4 px-4" style="transition: background-color 0.2s;">
+                                        
+                                        <div class="d-flex align-items-center pe-3">
+                                            <div class="rounded-3 shadow-sm me-3" style="width: 70px; height: 70px; flex-shrink: 0; overflow: hidden; background-color: #f8f9fa;">
+                                                @if (string.IsNullOrEmpty(item.ImageUrl))
+                                                {
+                                                    <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted">
+                                                        <i class="bi bi-image" style="font-size: 1.5rem;"></i>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <img src="@item.ImageUrl" alt="@item.FoodName" style="width:100%; height:100%; object-fit:cover;" />
+                                                }
+                                            </div>
+                                            <div>
+                                                <h5 class="fw-bold mb-1" style="color: #3E322C;">@item.FoodName</h5>
+                                                <small class="text-muted d-block mb-2 text-truncate" style="max-width: 250px;">@item.Description</small>
+                                                <span class="badge" style="background-color: #F9F6F0; color: #7A2836; border: 1px solid #E6DFD3; font-family: 'Courier New', monospace; font-size: 0.9rem;">
+                                                    @item.Price.ToString("N2") ₺
+                                                </span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="d-flex align-items-center gap-2">
+                                            <a asp-action="EditFood" asp-route-id="@item.Id" class="btn btn-sm btn-light border shadow-sm" style="color: #8C7361; height: 36px; line-height: 24px;">
+                                                <i class="bi bi-pencil-square"></i> Edit
+                                            </a>
+                                            
+                                            <a asp-action="ManageCustomizations" asp-route-id="@item.Id" class="btn btn-sm btn-light border shadow-sm text-dark" style="height: 36px; line-height: 24px;">
+                                                <i class="bi bi-gear"></i> Options
+                                            </a>
+
+                                            <form asp-action="DeleteFood" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Are you sure you want to delete @item.FoodName from your menu?');" class="m-0">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-light border text-danger shadow-sm" style="height: 36px; line-height: 24px;">
+                                                    <i class="bi bi-trash3-fill"></i> Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center p-5">
+                                <i class="bi bi-egg-fried display-1" style="color: #E6DFD3;"></i>
+                                <h5 class="mt-3 premium-font" style="color: #8C7361;">Your menu is empty</h5>
+                                <p class="text-muted">Start adding menus to attract customers.</p>
+                                <a asp-action="AddFood" class="btn text-white rounded-pill px-4 mt-2 shadow-sm" style="background-color: #7A2836;">
+                                    + Add New Menu
+                                </a>
+                            </div>
+                        }
+                    </div>
                 </div>
-            }
+            </div>
         </div>
     </div>
 </div>

@@ -30,6 +30,14 @@ namespace Hearty_Bites.Models
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
 
+        public string? ImageUrl { get; set; }
+
+        
+        [Required(ErrorMessage = "Phone number is required")]
+        [Phone(ErrorMessage = "Invalid phone number format")]
+        [StringLength(20)]
+        public string PhoneNumber { get; set; } = string.Empty;
+
         [ValidateNever]
         public ICollection<MenuItem> MenuItems { get; set; } = new List<MenuItem>();
     }

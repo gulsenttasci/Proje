@@ -1,0 +1,178 @@
+@model IEnumerable<Hearty_Bites.Models.Order>
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+@functions {
+    string GetStatusBadgeClass(string status) {
+        return status switch {
+            "Pending" => "bg-warning text-dark",
+            "Preparing" => "bg-info text-dark",
+            "Delivered" => "bg-success",
+            "Cancelled" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}
+
+<div class="container-fluid py-5" style="background-color: #F9F6F0; min-height: 100vh;">
+    <div class="container" style="max-width: 900px;">
+        <h2 class="premium-font fw-bold mb-4" style="color: #3E322C;">
+            <i class="bi bi-bag-check-fill" style="color: #7A2836;"></i> My Order History
+        </h2>
+
+        @if (!Model.Any())
+        {
+            <div class="text-center p-5 card border-0 shadow-sm" style="border-radius: 24px; background-color: #fff;">
+                <i class="bi bi-basket display-1" style="color: #E6DFD3;"></i>
+                <h5 class="mt-4 premium-font fw-bold" style="color: #8C7361;">No orders yet</h5>
+                <p class="text-muted">You haven't experienced our gourmet catering services yet.</p>
+                <a asp-controller="Home" asp-action="Index" class="btn text-white rounded-pill px-4 mt-2" style="background-color: #7A2836;">Find Caterers</a>
+            </div>
+        }
+        else
+        {
+            <div class="accordion shadow-sm" id="ordersAccordion" style="border-radius: 20px; overflow: hidden;">
+                @foreach (var order in Model)
+                {
+                    string collapseId = $"collapse_{order.Id}";
+                    string headingId = $"heading_{order.Id}";
+                    string shopName = order.Caterer?.ShopName ?? "Unknown Kitchen";
+                    bool isRated = ViewBag.RatedCatererIds != null && ((List<int>)ViewBag.RatedCatererIds).Contains(order.CatererId);
+
+                    <div class="accordion-item border-0 border-bottom">
+                        <h2 class="accordion-header" id="@headingId">
+                            <button class="accordion-button collapsed py-4 px-4 bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="false" aria-controls="@collapseId">
+                                <div class="d-flex justify-content-between align-items-center w-100 pe-3">
+                                    <div class="d-flex align-items-center gap-4">
+                                        <div class="text-center">
+                                            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem;">Order</small>
+                                            <h5 class="mb-0 fw-bold" style="color: #3E322C;">#@order.Id</h5>
+                                        </div>
+                                        <div>
+                                            <h5 class="mb-1 fw-bold" style="color: #7A2836;">@shopName</h5>
+                                            <small class="text-muted"><i class="bi bi-calendar3 me-1"></i> @order.OrderDate.ToString("dd MMM yyyy, HH:mm")</small>
+                                        </div>
+                                    </div>
+                                    <div class="text-end d-none d-md-block">
+                                        <span class="badge rounded-pill @GetStatusBadgeClass(order.Status) px-3 py-2 mb-1 shadow-sm border">@order.Status</span>
+                                        <h5 class="mb-0 fw-bold text-success">₺@order.TotalAmount.ToString("N2")</h5>
+                                    </div>
+                                </div>
+                            </button>
+                        </h2>
+
+                        <div id="@collapseId" class="accordion-collapse collapse" aria-labelledby="@headingId" data-bs-parent="#ordersAccordion">
+                            <div class="accordion-body p-4" style="background-color: #faf9f7;">
+                                <div class="row g-4">
+                                    
+                                    <div class="col-md-7">
+                                        <h6 class="fw-bold text-uppercase text-muted mb-3" style="font-size: 0.85rem; letter-spacing: 1px;">Order Contents</h6>
+                                        <ul class="list-group list-group-flush rounded-3 border">
+                                            @foreach(var item in order.OrderItems)
+                                            {
+                                                <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                                    <div>
+                                                        <span class="fw-bold" style="color: #3E322C;">@(item.Quantity)x</span> 
+                                                        <span class="ms-2">@(item.MenuItem?.FoodName ?? "Item Removed")</span>
+                                                        @if(!string.IsNullOrEmpty(item.CustomizationSummary))
+                                                        {
+                                                            <small class="d-block text-muted ms-4" style="font-size: 0.8rem;">@item.CustomizationSummary</small>
+                                                        }
+                                                    </div>
+                                                    <span class="fw-bold text-muted">₺@item.UnitPrice.ToString("N2")</span>
+                                                </li>
+                                            }
+                                        </ul>
+                                        <div class="mt-3 p-3 rounded-3" style="background-color: #F9F6F0; border: 1px dashed #E6DFD3;">
+                                            <small class="fw-bold text-muted d-block mb-1">Delivery Address:</small>
+                                            <span style="color: #3E322C;">@order.DeliveryAddress</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-5">
+                                        <h6 class="fw-bold text-uppercase text-muted mb-3" style="font-size: 0.85rem; letter-spacing: 1px;">Kitchen Info & Feedback</h6>
+                                        
+                                        <div class="card border-0 shadow-sm rounded-4 p-3 mb-3 text-center">
+                                            <h6 class="fw-bold" style="color: #7A2836;">@shopName</h6>
+                                            @if(order.Caterer != null && !string.IsNullOrEmpty(order.Caterer.Email))
+                                            {
+                                                <a href="mailto:@order.Caterer.Email" class="text-muted small text-decoration-none d-block mb-2">
+                                                    <i class="bi bi-envelope me-1"></i> @order.Caterer.Email
+                                                </a>
+                                            }
+                                            <a asp-controller="Home" asp-action="ShopDetails" asp-route-id="@order.CatererId" class="btn btn-outline-dark btn-sm rounded-pill mt-1 w-100">
+                                                Visit Catering Menu
+                                            </a>
+                                        </div>
+
+                                        <div class="card border border-warning shadow-sm rounded-4 p-3 bg-white">
+                                            @if (isRated)
+                                            {
+                                                <div class="text-center text-success py-2">
+                                                    <i class="bi bi-check-circle-fill fs-4 d-block mb-1"></i>
+                                                    <span class="fw-bold">Feedback Submitted</span>
+                                                    <small class="d-block text-muted">Thank you for rating this order!</small>
+                                                </div>
+                                            }
+                                            else if (order.Status == "Delivered")
+                                            {
+                                                <form asp-action="SubmitComment" method="post" class="text-center" novalidate>
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="catererId" value="@order.CatererId" />
+                                                    
+                                                    <label class="small fw-bold text-muted mb-2 d-block">How was your food?</label>
+                                                    <select name="starRating" class="form-select mb-2 rounded-pill text-center shadow-sm mx-auto" style="width: 120px;">
+                                                        <option value="5">⭐⭐⭐⭐⭐</option>
+                                                        <option value="4">⭐⭐⭐⭐</option>
+                                                        <option value="3">⭐⭐⭐</option>
+                                                        <option value="2">⭐⭐</option>
+                                                        <option value="1">⭐</option>
+                                                    </select>
+                                                    <textarea name="commentText" class="form-control mb-2 rounded-3" rows="2" placeholder="Write a brief review..."></textarea>
+                                                    <button type="submit" class="btn btn-warning rounded-pill w-100 fw-bold text-dark shadow-sm">Submit Rating</button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <div class="text-center text-muted py-2">
+                                                    <i class="bi bi-clock-history fs-4 d-block mb-1"></i>
+                                                    <small>You can rate this kitchen once the order is delivered.</small>
+                                                </div>
+                                            }
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (ViewBag.TotalPages > 1)
+            {
+                <nav class="mt-5">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item @(ViewBag.HasPreviousPage ? "" : "disabled")">
+                            <a class="page-link shadow-sm rounded-start-pill" asp-action="MyOrders" asp-route-pageNumber="@(ViewBag.CurrentPage - 1)">
+                                &laquo; Previous
+                            </a>
+                        </li>
+                        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                        {
+                            <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                                <a class="page-link shadow-sm @(ViewBag.CurrentPage == i ? "bg-dark border-dark" : "")" asp-action="MyOrders" asp-route-pageNumber="@i">@i</a>
+                            </li>
+                        }
+                        <li class="page-item @(ViewBag.HasNextPage ? "" : "disabled")">
+                            <a class="page-link shadow-sm rounded-end-pill" asp-action="MyOrders" asp-route-pageNumber="@(ViewBag.CurrentPage + 1)">
+                                Next &raquo;
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        }
+    </div>
+</div>

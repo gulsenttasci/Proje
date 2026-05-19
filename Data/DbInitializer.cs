@@ -21,7 +21,7 @@ public static class DbInitializer
         }
 
 
-        var adminEmail = "admin@heartybites.com";
+        var adminEmail = "admin@thecaterist.com";
         var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
         if (adminUser == null)

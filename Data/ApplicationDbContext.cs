@@ -19,6 +19,10 @@ namespace Hearty_Bites.Data
         public DbSet<CustomizationGroup> CustomizationGroups { get; set; }
 
         public DbSet<CustamizationOption> CustamizationOptions { get; set; }
+
+        public DbSet<LogEntry> LogEntries { get; set; }
+
+        public DbSet<OrderRating> OrderRatings { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

@@ -1,0 +1,81 @@
+@model IEnumerable<Hearty_Bites.Models.LogEntry>
+@{
+    ViewData["Title"] = "Admin - System Logs";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4"><i class="bi bi-terminal-fill text-dark"></i> System Diagnostic Audit Logs</h2>
+
+    <form asp-action="Logs" method="get" class="row g-2 mb-4">
+        <div class="col-md-4">
+            <input type="text" name="searchTerm" class="form-control" placeholder="Search in logs..." value="@ViewBag.SearchTerm">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-dark w-100">Filter</button>
+        </div>
+    </form>
+
+    <div class="shadow-sm rounded bg-dark p-3 mb-4" style="font-family: monospace;">
+        <table class="table table-dark table-borderless table-hover mb-0">
+            <thead>
+                <tr class="border-bottom border-secondary text-muted">
+                    <th style="width: 25%;">Timestamp</th>
+                    <th style="width: 15%;">Level</th>
+                    <th style="width: 60%;">Message</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="3" class="text-center text-muted py-3">No system logs found matching the criteria.</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var log in Model)
+                    {
+                        <tr>
+                            <td class="text-info">@log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                            <td>
+                                @if (log.Level == "SUCCESS")
+                                {
+                                    <span class="badge bg-success text-white">SUCCESS</span>
+                                }
+                                else if (log.Level == "ERROR")
+                                {
+                                    <span class="badge bg-danger text-white">ERROR</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-info text-dark">INFO</span>
+                                }
+                            </td>
+                            <td class="text-light">@log.Message</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (ViewBag.TotalPages > 1)
+    {
+        <nav aria-label="Log navigation">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(ViewBag.HasPreviousPage ? "" : "disabled")">
+                    <a class="page-link bg-dark text-white border-secondary" asp-action="Logs" asp-route-pageNumber="@(ViewBag.CurrentPage - 1)" asp-route-searchTerm="@ViewBag.SearchTerm">Previous</a>
+                </li>
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                        <a class="page-link @(ViewBag.CurrentPage == i ? "bg-secondary text-white border-secondary" : "bg-dark text-white border-secondary")" asp-action="Logs" asp-route-pageNumber="@i" asp-route-searchTerm="@ViewBag.SearchTerm">@i</a>
+                    </li>
+                }
+                <li class="page-item @(ViewBag.HasNextPage ? "" : "disabled")">
+                    <a class="page-link bg-dark text-white border-secondary" asp-action="Logs" asp-route-pageNumber="@(ViewBag.CurrentPage + 1)" asp-route-searchTerm="@ViewBag.SearchTerm">Next</a>
+                </li>
+            </ul>
+        </nav>
+    }
+</div>

@@ -1,0 +1,38 @@
+@model IEnumerable<Hearty_Bites.Models.Order>
+@{
+    ViewData["Title"] = "Admin - All Orders";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-shield-lock-fill text-danger"></i> Admin Portal: All System Orders</h2>
+    </div>
+
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table table-hover align-middle bg-white mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Order ID</th>
+                    <th>User ID</th>
+                    <th>Order Date</th>
+                    <th>Event Date</th>
+                    <th>Total Amount</th>
+                    <th>Delivery Address</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model)
+                {
+                    <tr>
+                        <td class="fw-bold">#@order.Id</td>
+                        <td class="text-muted text-truncate" style="max-width: 120px;">@order.UserId</td>
+                        <td>@order.OrderDate.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@order.EventDate.ToString("dd.MM.yyyy")</td>
+                        <td class="text-success fw-bold">@order.TotalAmount.ToString("N2") ₺</td>
+                        <td class="text-truncate" style="max-width: 200px;">@order.DeliveryAddress</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

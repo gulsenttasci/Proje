@@ -28,6 +28,7 @@ namespace Hearty_Bites.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
 
+
             var cartItems = await _context.CartItems
                 .Include(c => c.MenuItem)
                     .ThenInclude(m => m.Caterer)
@@ -228,6 +229,17 @@ namespace Hearty_Bites.Controllers
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
+
+            _context.LogEntries.Add(new Hearty_Bites.Models.LogEntry
+            {
+                Timestamp = DateTime.Now,
+                Level = "SUCCESS",
+                Message = $"Core Engine: Order #{order.Id} safely persisted to storage. Transaction volume: {order.TotalAmount:N2} ₺. Target destination registered: {order.DeliveryAddress}",
+                UserId = userId
+            });
+
+            await _context.SaveChangesAsync();
+
             StringBuilder menuSummaryBuilder = new StringBuilder();
 
             foreach (var item in cartItems)
@@ -255,12 +267,20 @@ namespace Hearty_Bites.Controllers
             await _context.SaveChangesAsync();
 
             string userEmail = User.FindFirstValue(ClaimTypes.Email) ?? User.Identity?.Name ?? "customer@gmail.com";
+            if (string.IsNullOrEmpty(userEmail) || !userEmail.Contains("@"))
+            {
+                userEmail = "gulsentasci47@gmail.com";
+            }
             string customerName = cardHolderName ?? "Valued Client";
             string assignedCaterer = currentCaterer.ShopName ?? "Independent Caterer Node";
             string finalMenuText = menuSummaryBuilder.ToString();
 
             var catererUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == currentCaterer.UserId);
-            string catererEmail = catererUser?.Email ?? "thecaterist.test.node@gmail.com"; 
+            string catererEmail = catererUser?.Email ?? "thecaterist.test.node@gmail.com";
+            if (string.IsNullOrEmpty(catererEmail) || !catererEmail.Contains("@"))
+            {
+                catererEmail = "gulsentasci47@gmail.com";
+            }
 
             _ = Task.Run(async () =>
             {
@@ -271,8 +291,16 @@ namespace Hearty_Bites.Controllers
                     await _emailService.SendOrderContractEmailAsync(catererEmail, order, customerName, assignedCaterer, finalMenuText);
                 }
                 catch (Exception ex)
-                {
-                    Console.WriteLine($"--> Background Email Logging: {ex.Message}");
+                {    
+                    //test icin sonra deletedet
+                    //Console.WriteLine($"--> Background Email Logging: {ex.Message}");
+                    Console.WriteLine($"Non-Fatal Warning: Email delivery paused. Reason: {ex.Message}");
+
+
+                    if (ex.InnerException != null)
+                    {
+                        Console.WriteLine($"--> 🔴 Gmail Sunucu Detayı: {ex.InnerException.Message}");
+                    }
                 }
             });
 

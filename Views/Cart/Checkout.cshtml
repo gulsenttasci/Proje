@@ -1,128 +1,236 @@
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@{
+    string mapsApiKey = Configuration["GoogleMaps:ApiKey"] ?? "";
+}
 @model IEnumerable<Hearty_Bites.Models.CartItem>
 @{
     ViewData["Title"] = "Secure Checkout";
     decimal cartTotal = ViewBag.CartTotal ?? 0;
 }
 
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
-
-<style>
-    .premium-font { font-family: 'Playfair Display', serif; }
-    .card-input { letter-spacing: 2px; font-family: 'Courier New', Courier, monospace; }
-</style>
-
-<div class="container mt-5 mb-5">
-    <div class="border-bottom pb-3 mb-4">
-        <h2 class="premium-font fw-bold text-dark">
-            <i class="bi bi-shield-check text-success me-2"></i> Secure Checkout
-        </h2>
-        <p class="text-muted mb-0">Complete your event details and simulate your payment securely.</p>
+<div class="row mt-4">
+    <div class="col-md-12">
+        <label class="form-label fw-bold"><i class="bi bi-geo-alt-fill text-danger"></i> Select the Delivery Location from the Map</label>
+        <div id="map" style="height: 400px; width: 100%; border-radius: 8px; border: 1px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 15px;"></div>
     </div>
+</div>
 
-    <div class="row g-4">
-        <div class="col-lg-7">
-            <form asp-controller="Cart" asp-action="ProcessOrder" method="post" id="checkoutForm">
-                @Html.AntiForgeryToken()
+<input type="hidden" id="SelectedLatitude" name="Latitude" />
+<input type="hidden" id="SelectedLongitude" name="Longitude" />
 
-                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white border">
-                    <h5 class="premium-font fw-bold mb-3 text-dark border-bottom pb-2">
-                        <i class="bi bi-calendar-event text-danger me-2"></i> 1. Event Logistics
-                    </h5>
+<script src="https://maps.googleapis.com/maps/api/js?key=@mapsApiKey&callback=initMap&loading=async" async defer></script>
+<script>
+    let map;
+    let marker;
+
+    const defaultLocation = { lat: 39.9334, lng: 32.8597 };
+
+    function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 12,
+            center: defaultLocation,
+            mapTypeControl: false,
+            streetViewControl: false
+        });
+            
+        map.addListener('click', function (e) {
+            placeMarker(e.latLng, true);
+        });
+
+        const addressInput = document.getElementById('DeliveryAddress');
+        if (addressInput) {
+            addressInput.addEventListener('change', function() {
+                const userAddress = this.value;
+                if (userAddress.trim().length > 5) { 
+                    const geocoder = new google.maps.Geocoder();
                     
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-muted">Event Date & Time</label>
-                            <input type="datetime-local" name="eventDate" class="form-control py-2 shadow-none border-secondary-subtle" required min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
-                            <div class="form-text text-muted small">Select the exact date of your catering event.</div>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="form-label small fw-bold text-muted">Delivery & Venue Address</label>
-                            <textarea name="deliveryAddress" class="form-control shadow-none border-secondary-subtle" rows="3" placeholder="Enter the full address of the event hall, office, or residence..." required></textarea>
-                        </div>
-                    </div>
-                </div>
+                    geocoder.geocode({ address: userAddress }, function(results, status) {
+                        if (status === 'OK' && results[0]) {
+                            const foundLocation = results[0].geometry.location;
+                            
+                            map.setCenter(foundLocation);
+                            map.setZoom(15); 
+                            placeMarker(foundLocation, false); 
+                        }
+                    });
+                }
+            });
+        }
+    }
 
-                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white border">
-                    <h5 class="premium-font fw-bold mb-3 text-dark border-bottom pb-2">
-                        <i class="bi bi-credit-card-2-front text-primary me-2"></i> 2. Payment Simulation
-                    </h5>
-                    
-                    <div class="alert alert-light border rounded-3 small text-muted mb-4">
-                        <i class="bi bi-info-circle-fill text-info me-2"></i> 
-                        <strong>Simulation Mode Active:</strong> You can use mock card data for testing. The system simulates payment validation.
-                    </div>
+    function placeMarker(latLng, updateTextInput) {
+        if (marker) {
+            marker.setPosition(latLng);
+        } else {
+            marker = new google.maps.Marker({
+                position: latLng,
+                map: map,
+                animation: google.maps.Animation.DROP
+            });
+        }
 
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted">Cardholder's Name</label>
-                        <input type="text" name="cardHolderName" class="form-control py-2 shadow-none border-secondary-subtle text-uppercase" placeholder="JOHN DOE" required />
-                    </div>
+        document.getElementById('SelectedLatitude').value = latLng.lat();
+        document.getElementById('SelectedLongitude').value = latLng.lng();
 
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted">Card Number</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light"><i class="bi bi-credit-card"></i></span>
-                            <input type="text" name="cardNumber" class="form-control py-2 shadow-none border-secondary-subtle card-input" placeholder="1234 5678 1234 5678" maxlength="19" required />
-                        </div>
-                    </div>
+        if (updateTextInput) {
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ location: latLng }, function(results, status) {
+                if (status === 'OK' && results[0]) {
+                    var addressInput = document.getElementById('DeliveryAddress');
+                    if (addressInput) {
+                        addressInput.value = results[0].formatted_address;
+                    }
+                }
+            });
+        }
+    } 
+</script>
+    
 
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-muted">Expiration Date</label>
-                            <input type="text" name="expirationDate" class="form-control py-2 shadow-none border-secondary-subtle card-input" placeholder="MM/YY" maxlength="5" required />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-muted">CVV / CVC</label>
-                            <input type="password" name="cvv" class="form-control py-2 shadow-none border-secondary-subtle card-input" placeholder="***" maxlength="3" required />
-                        </div>
-                    </div>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
 
-                    <input type="hidden" name="totalAmount" value="@cartTotal" />
+    <style>
+        .premium-font {
+        font-family: 'Playfair Display', serif;
+        }
 
-                    <div class="mt-4 pt-3 border-top">
-                        <button type="submit" class="btn text-white w-100 rounded-pill fw-bold py-2 fs-5 shadow" style="background-color: #7A2836;">
-                            <i class="bi bi-lock-fill me-2"></i> Authorize & Complete Order (@cartTotal.ToString("C"))
-                        </button>
-                    </div>
-                </div>
-            </form>
+        .card-input {
+        letter-spacing: 2px;
+        font-family: 'Courier New', Courier, monospace;
+        }
+    </style>
+
+    <div class="container mt-5 mb-5">
+        <div class="border-bottom pb-3 mb-4">
+            <h2 class="premium-font fw-bold text-dark">
+                <i class="bi bi-shield-check text-success me-2"></i> Secure Checkout
+            </h2>
+            <p class="text-muted mb-0">Complete your event details and simulate your payment securely.</p>
         </div>
 
-        <div class="col-lg-5">
-            <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="background-color: #F9F6F0; top: 20px; z-index: 10;">
-                <h5 class="fw-bold mb-4 border-bottom pb-2 text-muted" style="font-size: 0.9rem; letter-spacing: 1px;">SİPARİŞ ÖZETİ</h5>
-                
-                <div style="max-height: 300px; overflow-y: auto;" class="pe-2 mb-3">
-                    @foreach (var item in Model)
-                    {
-                        <div class="bg-white p-3 rounded-3 border mb-2 shadow-sm">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="fw-bold mb-0 text-dark">@item.MenuItem?.FoodName</h6>
-                                    <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">
-                                        Caterer: <strong>@item.MenuItem?.Caterer?.ShopName</strong>
-                                    </small>
-                                    @if (!string.IsNullOrEmpty(item.CustomizationSummary))
-                                    {
-                                        <div class="text-muted mt-1" style="font-size: 0.75rem; font-style: italic;">
-                                            <i class="bi bi-dot text-danger"></i> @item.CustomizationSummary
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <form asp-controller="Cart" asp-action="ProcessOrder" method="post" id="checkoutForm">
+                    @Html.AntiForgeryToken()
+
+                    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white border">
+                        <h5 class="premium-font fw-bold mb-3 text-dark border-bottom pb-2">
+                            <i class="bi bi-calendar-event text-danger me-2"></i> 1. Event Logistics
+                        </h5>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">Event Date & Time</label>
+                                <input type="datetime-local" name="eventDate"
+                                       class="form-control py-2 shadow-none border-secondary-subtle" required
+                                       min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+                                <div class="form-text text-muted small">Select the exact date of your catering event.</div>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label small fw-bold text-muted">Delivery & Venue Address</label>
+                                <textarea name="deliveryAddress" class="form-control shadow-none border-secondary-subtle"
+                                          rows="3" placeholder="Enter the full address of the event hall, office, or residence..."
+                                          required></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white border">
+                        <h5 class="premium-font fw-bold mb-3 text-dark border-bottom pb-2">
+                            <i class="bi bi-credit-card-2-front text-primary me-2"></i> 2. Payment Simulation
+                        </h5>
+
+                        <div class="alert alert-light border rounded-3 small text-muted mb-4">
+                            <i class="bi bi-info-circle-fill text-info me-2"></i>
+                            <strong>Simulation Mode Active:</strong> You can use mock card data for testing. The system
+                            simulates payment validation.
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Cardholder's Name</label>
+                            <input type="text" name="cardHolderName"
+                                   class="form-control py-2 shadow-none border-secondary-subtle text-uppercase"
+                                   placeholder="Name Surname" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Card Number</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-credit-card"></i></span>
+                                <input type="text" name="cardNumber"
+                                       class="form-control py-2 shadow-none border-secondary-subtle card-input"
+                                       placeholder="1234 5678 1234 5678" maxlength="19" required />
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">Expiration Date</label>
+                                <input type="text" name="expirationDate"
+                                       class="form-control py-2 shadow-none border-secondary-subtle card-input"
+                                       placeholder="MM/YY" maxlength="5" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">CVV / CVC</label>
+                                <input type="password" name="cvv"
+                                       class="form-control py-2 shadow-none border-secondary-subtle card-input"
+                                       placeholder="***" maxlength="3" required />
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="totalAmount" value="@cartTotal" />
+
+                        <div class="mt-4 pt-3 border-top">
+                            <button type="submit" class="btn text-white w-100 rounded-pill fw-bold py-2 fs-5 shadow"
+                                    style="background-color: #7A2836;">
+                                <i class="bi bi-lock-fill me-2"></i> Authorize & Complete Order (@cartTotal.ToString("C"))
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top"
+                     style="background-color: #F9F6F0; top: 20px; z-index: 10;">
+                    <h5 class="fw-bold mb-4 border-bottom pb-2 text-muted" style="font-size: 0.9rem; letter-spacing: 1px;">
+                        ORDER SUMMARY</h5>
+
+                        <div style="max-height: 300px; overflow-y: auto;" class="pe-2 mb-3">
+                            @foreach (var item in Model)
+                            {
+                                <div class="bg-white p-3 rounded-3 border mb-2 shadow-sm">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="fw-bold mb-0 text-dark">@item.MenuItem?.FoodName</h6>
+                                            <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">
+                                                Caterer: <strong>@item.MenuItem?.Caterer?.ShopName</strong>
+                                            </small>
+                                            @if (!string.IsNullOrEmpty(item.CustomizationSummary))
+                                            {
+                                                <div class="text-muted mt-1" style="font-size: 0.75rem; font-style: italic;">
+                                                    <i class="bi bi-dot text-danger"></i> @item.CustomizationSummary
+                                                </div>
+                                            }
+                                        </div>
+                                        <span class="badge badge-custom rounded-pill small bg-light text-dark border">@item.Quantity
+                                            guests</span>
+                                        </div>
+                                        <div class="text-end mt-2 pt-1 border-top border-light">
+                                            <small class="text-muted small">@item.UnitPrice.ToString("C") &times; @item.Quantity</small>
+                                            <span class="fw-bold d-block text-dark small">@((item.UnitPrice *
+                                                                                item.Quantity).ToString("C"))</span>
+                                            </div>
                                         </div>
                                     }
                                 </div>
-                                <span class="badge badge-custom rounded-pill small bg-light text-dark border">@item.Quantity guests</span>
-                            </div>
-                            <div class="text-end mt-2 pt-1 border-top border-light">
-                                <small class="text-muted small">@item.UnitPrice.ToString("C") &times; @item.Quantity</small>
-                                <span class="fw-bold d-block text-dark small">@((item.UnitPrice * item.Quantity).ToString("C"))</span>
+
+                                <div class="d-flex justify-content-between align-items-center pt-3 border-top border-secondary-subtle">
+                                    <span class="fw-bold text-muted">Grand Total:</span>
+                                    <span class="fs-3 fw-bold" style="color: #7A2836;">@cartTotal.ToString("C")</span>
+                                </div>
                             </div>
                         </div>
-                    }
+                    </div>
                 </div>
-
-                <div class="d-flex justify-content-between align-items-center pt-3 border-top border-secondary-subtle">
-                    <span class="fw-bold text-muted">Grand Total:</span>
-                    <span class="fs-3 fw-bold" style="color: #7A2836;">@cartTotal.ToString("C")</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
