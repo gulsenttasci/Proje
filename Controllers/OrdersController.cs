@@ -33,6 +33,8 @@ namespace Hearty_Bites.Controllers
             
             var userOrders = await _context.Orders
                 .Include(o => o.Caterer)
+                .Include(o => o.OrderItems).ThenInclude(oi => oi.MenuItem)
+                .Where(o => o.UserId == userId)
                 .Where(o => o.UserId == userId)
                 .OrderByDescending(o => o.OrderDate)
                 .Skip((pageNumber - 1) * pageSize)
@@ -43,6 +45,7 @@ namespace Hearty_Bites.Controllers
             var ratedCatererIds = await _context.Comments
                 .Where(c => c.UserId == userId && !c.IsDeleted)
                 .Select(c => c.CatererId)
+                .Distinct()
                 .ToListAsync();
 
             int totalPages = (int)Math.Ceiling((double)totalOrders / pageSize);

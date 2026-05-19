@@ -3,60 +3,80 @@
     ViewData["Title"] = "Admin - System Logs";
 }
 
-<div class="container mt-4">
-    <h2 class="mb-4"><i class="bi bi-terminal-fill text-dark"></i> System Diagnostic Audit Logs</h2>
+<div class="container mt-4 mb-5">
+    
+    <div class="card bg-dark text-white p-3 mb-4 border-0 shadow-sm" style="border-radius: 12px;">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <h4 class="mb-0 fw-bold"><i class="bi bi-shield-shaded text-danger me-2"></i>Admin Core Center</h4>
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-sm btn-outline-light rounded-pill px-3" asp-action="Dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                <a class="btn btn-sm btn-outline-light rounded-pill px-3" asp-action="Orders"><i class="bi bi-bag-check"></i> Orders</a>
+                <a class="btn btn-sm btn-outline-light rounded-pill px-3" asp-action="ManageMenus"><i class="bi bi-card-list"></i> Menus</a>
+                <a class="btn btn-sm btn-outline-light rounded-pill px-3" asp-action="ManageComments"><i class="bi bi-chat-left-text"></i> Comments</a>
+                <a class="btn btn-sm btn-success rounded-pill px-3 fw-bold text-dark" asp-action="Logs"><i class="bi bi-terminal"></i> Logs</a>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="mb-4 fw-bold text-secondary"><i class="bi bi-terminal-fill text-dark"></i> System Diagnostic Audit Logs</h3>
 
     <form asp-action="Logs" method="get" class="row g-2 mb-4">
         <div class="col-md-4">
-            <input type="text" name="searchTerm" class="form-control" placeholder="Search in logs..." value="@ViewBag.SearchTerm">
+            <input type="text" name="searchTerm" class="form-control rounded-pill px-3" placeholder="Search in logs..." value="@ViewBag.SearchTerm">
         </div>
         <div class="col-md-2">
-            <button type="submit" class="btn btn-dark w-100">Filter</button>
+            <button type="submit" class="btn btn-dark rounded-pill w-100">Filter</button>
         </div>
     </form>
 
-    <div class="shadow-sm rounded bg-dark p-3 mb-4" style="font-family: monospace;">
-        <table class="table table-dark table-borderless table-hover mb-0">
-            <thead>
-                <tr class="border-bottom border-secondary text-muted">
-                    <th style="width: 25%;">Timestamp</th>
-                    <th style="width: 15%;">Level</th>
-                    <th style="width: 60%;">Message</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (!Model.Any())
-                {
-                    <tr>
-                        <td colspan="3" class="text-center text-muted py-3">No system logs found matching the criteria.</td>
+    <div class="shadow-sm rounded bg-dark p-3 mb-4" style="font-family: monospace; border-radius: 12px !important;">
+        <div class="table-responsive">
+            <table class="table table-dark table-borderless table-hover mb-0">
+                <thead>
+                    <tr class="border-bottom border-secondary text-muted">
+                        <th style="width: 25%;">Timestamp</th>
+                        <th style="width: 15%;">Level</th>
+                        <th style="width: 60%;">Message</th>
                     </tr>
-                }
-                else
-                {
-                    @foreach (var log in Model)
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
                     {
                         <tr>
-                            <td class="text-info">@log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
-                            <td>
-                                @if (log.Level == "SUCCESS")
-                                {
-                                    <span class="badge bg-success text-white">SUCCESS</span>
-                                }
-                                else if (log.Level == "ERROR")
-                                {
-                                    <span class="badge bg-danger text-white">ERROR</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-info text-dark">INFO</span>
-                                }
-                            </td>
-                            <td class="text-light">@log.Message</td>
+                            <td colspan="3" class="text-center text-muted py-3">No system logs found matching the criteria.</td>
                         </tr>
                     }
-                }
-            </tbody>
-        </table>
+                    else
+                    {
+                        @foreach (var log in Model)
+                        {
+                            <tr>
+                                <td class="text-secondary small">@log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                <td>
+                                    @if (log.Level == "ERROR" || log.Level == "CRITICAL")
+                                    {
+                                        <span class="badge bg-danger">@log.Level</span>
+                                    }
+                                    else if (log.Level == "WARNING")
+                                    {
+                                        <span class="badge bg-warning text-dark">@log.Level</span>
+                                    }
+                                    else if (log.Level == "SUCCESS")
+                                    {
+                                        <span class="badge bg-success">@log.Level</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-info text-dark">@log.Level</span>
+                                    }
+                                </td>
+                                <td class="text-light">@log.Message</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 
     @if (ViewBag.TotalPages > 1)
@@ -64,7 +84,7 @@
         <nav aria-label="Log navigation">
             <ul class="pagination justify-content-center">
                 <li class="page-item @(ViewBag.HasPreviousPage ? "" : "disabled")">
-                    <a class="page-link bg-dark text-white border-secondary" asp-action="Logs" asp-route-pageNumber="@(ViewBag.CurrentPage - 1)" asp-route-searchTerm="@ViewBag.SearchTerm">Previous</a>
+                    <a class="page-link bg-dark text-white border-secondary" asp-action="Logs" asp-route-pageNumber="@(ViewBag.CurrentPage - 1)" asp-route-searchTerm="@ViewBag.SearchTerm">&laquo; Prev</a>
                 </li>
                 @for (int i = 1; i <= ViewBag.TotalPages; i++)
                 {
@@ -73,7 +93,7 @@
                     </li>
                 }
                 <li class="page-item @(ViewBag.HasNextPage ? "" : "disabled")">
-                    <a class="page-link bg-dark text-white border-secondary" asp-action="Logs" asp-route-pageNumber="@(ViewBag.CurrentPage + 1)" asp-route-searchTerm="@ViewBag.SearchTerm">Next</a>
+                    <a class="page-link bg-dark text-white border-secondary" asp-action="Logs" asp-route-pageNumber="@(ViewBag.CurrentPage + 1)" asp-route-searchTerm="@ViewBag.SearchTerm">Next &raquo;</a>
                 </li>
             </ul>
         </nav>

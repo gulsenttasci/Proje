@@ -1,0 +1,108 @@
+@model Hearty_Bites.Models.MenuItem
+@{
+    ViewData["Title"] = "Manage Customizations";
+    var existingGroups = ViewBag.CustomizationGroups as List<Hearty_Bites.Models.CustomizationGroup>;
+}
+
+<div class="container-fluid py-5" style="background-color: #F9F6F0; min-height: 100vh;">
+    <div class="container" style="max-width: 1050px;">
+        
+        <div class="d-flex justify-content-between align-items-center mb-5 pb-3" style="border-bottom: 2px solid #E6DFD3;">
+            <div>
+                <h1 class="premium-font fw-bold" style="color: #3E322C;">Menu Customization Panel</h1>
+                <p class="text-muted mb-0 mt-1">
+                    Managing extras, ingredients, and options for: <strong style="color: #7A2836;">@Model.FoodName</strong>
+                </p>
+            </div>
+            <a asp-action="Index" class="btn btn-outline-dark rounded-pill px-4 shadow-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <div class="row g-5">
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm p-4 p-md-5" style="border-radius: 24px; background-color: #fff;">
+                    <h4 class="fw-bold mb-4" style="color: #3E322C;">
+                        <i class="bi bi-plus-circle-fill text-success me-2"></i>Add New Option
+                    </h4>
+                    
+                    <form asp-action="AddCustomizationOption" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="menuItemId" value="@Model.Id" />
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold" style="color: #8C7361;">Group Name</label>
+                            <input type="text" name="groupName" class="form-control rounded-pill px-3 py-2 shadow-none" 
+                                   placeholder="e.g., Beverage Choice, Excluded Ingredients" required style="border: 2px solid #E6DFD3; background-color: #F9F6F0;" />
+                            <small class="text-muted d-block mt-1 ms-2">Existing groups will be appended; new ones will be created.</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold" style="color: #8C7361;">Option Name</label>
+                            <input type="text" name="optionName" class="form-control rounded-pill px-3 py-2 shadow-none" 
+                                   placeholder="e.g., No Onions, Coca Cola, Extra Cheese" required style="border: 2px solid #E6DFD3; background-color: #F9F6F0;" />
+                        </div>
+
+                        <button type="submit" class="btn text-white w-100 rounded-pill py-2.5 fw-bold shadow-sm mt-2" style="background-color: #7A2836;">
+                            <i class="bi bi-check-lg me-1"></i> Save Customization Item
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm p-4 p-md-5 h-100" style="border-radius: 24px; background-color: #fff;">
+                    <h4 class="fw-bold mb-4" style="color: #3E322C;">
+                        <i class="bi bi-sliders me-2" style="color: #8C7361;"></i>Active Customization Groups
+                    </h4>
+
+                    @if (existingGroups != null && existingGroups.Any(g => !g.IsDeleted))
+                    {
+                        <div class="accordion accordion-flush" id="customizationAccordion">
+                            @foreach (var group in existingGroups.Where(g => !g.IsDeleted))
+                            {
+                                string collapseId = $"flush-collapse-{group.Id}";
+                                
+                                <div class="accordion-item border-0 mb-3 rounded-4 shadow-sm overflow-hidden" style="border: 1px solid #E6DFD3 !important;">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed fw-bold px-4 py-3" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" style="background-color: #F9F6F0; color: #3E322C;">
+                                            <i class="bi bi-folder2-open me-2 text-secondary"></i> @group.GroupName
+                                            <span class="badge bg-white text-muted border ms-2 rounded-pill">@group.Options.Count(o => !o.IsDeleted) Options</span>
+                                        </button>
+                                    </h2>
+                                    <div id="@collapseId" class="accordion-collapse collapse" data-bs-parent="#customizationAccordion">
+                                        <div class="accordion-body bg-white p-4">
+                                            @if (group.Options != null && group.Options.Any(o => !o.IsDeleted))
+                                            {
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    @foreach (var opt in group.Options.Where(o => !o.IsDeleted))
+                                                    {
+                                                        <span class="badge px-3 py-2 rounded-pill border text-dark bg-light shadow-none" style="font-size: 0.9rem;">
+                                                            <i class="bi bi-dot text-danger me-1"></i>@opt.OptionName
+                                                        </span>
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted small italic">No options have been added to this structure yet.</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center p-5 text-muted my-auto">
+                            <i class="bi bi-layers display-3 d-block mb-3 opacity-25"></i>
+                            <span>No customization structures have been deployed for this package yet. Use the deployment engine on the left to map alternatives.</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

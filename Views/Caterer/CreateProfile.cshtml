@@ -35,8 +35,15 @@
                     </div>
                 </div>
 
+                
+                <div class="mb-3">
+                    <label asp-for="PhoneNumber" class="form-label fw-bold" style="color: #8C7361;">Contact Phone Number</label>
+                    <input asp-for="PhoneNumber" class="form-control rounded-pill px-3 py-2" placeholder="e.g., +90 555 555 55 55" required />
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
+                
                 <div class="mb-4">
-                    <label asp-for="Description" class="form-label fw-bold" style="color: #8C7361;">About Your Kitchen</label>
+                    <label asp-for="Description" class="form-label fw-bold" style="color: #8C7361;">About Your Catering</label>
                     <textarea asp-for="Description" class="form-control px-3 py-2" rows="4" style="border-radius: 15px;"
                               placeholder="Tell us about your culinary style and specialties..."></textarea>
                 </div>

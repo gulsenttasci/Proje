@@ -1,19 +1,103 @@
 @model IEnumerable<Hearty_Bites.Models.Caterer>
+@{
+    ViewData["Title"] = "Welcome to The Caterist";
+}
 
-<div class="container mt-5 mb-5">
-    <div class="p-5 mb-4 rounded-3 shadow-sm border-0" style="background-color: #F9F6F0;">
-        <div class="container-fluid py-3">
-            <h1 class="display-5 fw-bold premium-font" style="color: #3E322C;">Welcome to The Caterist!</h1>
-            <p class="col-md-8 fs-4 text-muted">Discover professional caterers near you, customize your menus dynamically, and experience premium tastes tailored to your events.</p>
-            <a href="#caterersList" class="btn text-white px-4 py-2 rounded-pill fw-bold" style="background-color: #7A2836;">
-                <i class="bi bi-arrow-down-circle me-1"></i> Explore Caterers
-            </a>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+    .premium-font { font-family: 'Playfair Display', serif; }
+    
+    .hero-section {
+        background: linear-gradient(135deg, #1A1412 0%, #3E322C 100%);
+        color: #F9F6F0;
+        padding: 100px 0;
+        border-bottom: 5px solid #7A2836;
+        margin-top: -20px;
+    }
+    
+    .feature-icon-box {
+        width: 80px; 
+        height: 80px;
+        background-color: #F9F6F0;
+        color: #7A2836;
+        border-radius: 50%;
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+        font-size: 2rem; 
+        margin: 0 auto 20px;
+        border: 2px dashed #D5C9BC;
+        transition: transform 0.3s ease;
+    }
+
+    .feature-card:hover .feature-icon-box {
+        transform: scale(1.1);
+        background-color: #3E322C;
+        color: #F9F6F0;
+        border-color: #3E322C;
+    }
+
+    .caterer-card {
+        border-radius: 16px;
+        transition: all 0.3s ease;
+        border: 1px solid #E6DFD3 !important;
+    }
+
+    .caterer-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(62, 50, 44, 0.1) !important;
+    }
+</style>
+
+<div class="container-fluid px-0 hero-section text-center mb-5 shadow-sm">
+    <div class="container">
+        <span class="badge bg-warning text-dark mb-4 px-3 py-2 rounded-pill fw-bold shadow-sm">
+            <i class="bi bi-star-fill me-1"></i> Premium Event Catering
+        </span>
+        <h1 class="display-3 premium-font fw-bold mb-4">Elevate Your Events with <span style="color: #D5C9BC;">The Caterist</span></h1>
+        <p class="lead mx-auto mb-5" style="max-width: 700px; color: rgba(249,246,240, 0.8);">
+            Discover top-tier culinary professionals, customize menus dynamically to perfection, and create unforgettable dining experiences for your guests.
+        </p>
+        <a href="#caterersList" class="btn btn-lg text-white rounded-pill px-5 py-3 fw-bold shadow" style="background-color: #7A2836;">
+            <i class="bi bi-search me-2"></i> Find Caterers Near Me
+        </a>
+    </div>
+</div>
+
+<div class="container mb-5 pb-4" style="border-bottom: 2px solid #E6DFD3;">
+    <div class="row text-center g-4">
+        <div class="col-md-4">
+            <div class="p-4 bg-white rounded-4 feature-card h-100 border-0 shadow-sm">
+                <div class="feature-icon-box"><i class="bi bi-shop"></i></div>
+                <h4 class="premium-font fw-bold" style="color: #3E322C;">1. Discover Experts</h4>
+                <p class="text-muted">Browse through our verified catering partners and explore their exclusive event packages.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-4 bg-white rounded-4 feature-card h-100 border-0 shadow-sm">
+                <div class="feature-icon-box"><i class="bi bi-sliders"></i></div>
+                <h4 class="premium-font fw-bold" style="color: #3E322C;">2. Customize Your Menu</h4>
+                <p class="text-muted">Tailor the ingredients, side dishes, and extras dynamically to fit your guests' needs.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-4 bg-white rounded-4 feature-card h-100 border-0 shadow-sm">
+                <div class="feature-icon-box"><i class="bi bi-calendar-check"></i></div>
+                <h4 class="premium-font fw-bold" style="color: #3E322C;">3. Book & Enjoy</h4>
+                <p class="text-muted">Securely place your order and let our professional kitchens handle the culinary magic.</p>
+            </div>
         </div>
     </div>
+</div>
 
-    <div class="d-flex justify-content-between align-items-center mb-4 id="caterersList"">
-        <h3 class="premium-font mb-0" style="color: #8C7361;">Available Catering Partners</h3>
-        <span class="badge bg-secondary rounded-pill p-2">@Model.Count() Partners Found</span>
+<div class="container mb-5" id="caterersList">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="premium-font fw-bold mb-0" style="color: #8C7361;">
+            <i class="bi bi-geo-alt-fill text-danger me-2"></i>Available Catering Partners
+        </h3>
+        <span class="badge rounded-pill p-2" style="background-color: #3E322C;">
+            <i class="bi bi-check-circle-fill text-success me-1"></i> @(Model?.Count() ?? 0) Partners Found
+        </span>
     </div>
 
     <div class="row row-cols-1 row-cols-md-3 g-4">
@@ -22,27 +106,28 @@
             foreach (var caterer in Model)
             {
                 <div class="col">
-                    <div class="card h-100 shadow-sm border-0" style="border-radius: 16px; transition: transform 0.2s;">
+                    <div class="card h-100 shadow-sm caterer-card" style="background-color: #ffffff;">
                         <div class="card-body p-4 d-flex flex-column justify-content-between">
                             <div>
                                 <div class="d-flex align-items-center mb-3">
-                                    <div class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 50px; height: 50px; background-color: #8C7361; font-size: 20px;">
-                                        <i class="bi bi-shop"></i>
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center text-white shadow-sm" 
+                                         style="width: 55px; height: 55px; background-color: #8C7361; font-size: 24px;">
+                                        <i class="bi bi-shop-window"></i>
                                     </div>
                                     <div class="ms-3">
                                         <h5 class="card-title mb-0 fw-bold premium-font" style="color: #3E322C;">@caterer.ShopName</h5>
-                                        <small class="text-muted"><i class="bi bi-geo-alt-fill me-1"></i>@caterer.Address</small>
+                                        <small class="text-muted"><i class="bi bi-geo-alt-fill text-danger me-1"></i>@caterer.Address</small>
                                     </div>
                                 </div>
-
-                                <p class="card-text text-muted" style="font-size: 14px; line-height: 1.5;">
-                                    @caterer.Description
+                                <p class="card-text text-muted" style="font-size: 0.9rem; line-height: 1.6;">
+                                    @(caterer.Description.Length > 100 ? caterer.Description.Substring(0, 100) + "..." : caterer.Description)
                                 </p>
                             </div>
 
-                            <div class="mt-3">
-                                <a asp-controller="Home" asp-action="ShopDetails" asp-route-id="@caterer.Id" class="btn text-white w-100 rounded-pill fw-bold" style="background-color: #7A2836;">
-                                    View Menu & Order <i class="bi bi-arrow-right ms-1"></i>
+                            <div class="mt-4 pt-3 border-top border-light">
+                                <a asp-controller="Home" asp-action="ShopDetails" asp-route-id="@caterer.Id" 
+                                   class="btn text-white w-100 rounded-pill fw-bold" style="background-color: #7A2836;">
+                                    View Menus <i class="bi bi-arrow-right ms-1"></i>
                                 </a>
                             </div>
                         </div>
@@ -52,10 +137,10 @@
         }
         else
         {
-            <div class="col-100 text-center p-5 w-100">
-                <i class="bi bi-emoji-frown display-1 text-muted"></i>
-                <h4 class="mt-3 premium-font" style="color: #8C7361;">No active caterers found at the moment.</h4>
-                <p class="text-muted">Please check back later.</p>
+            <div class="col-12 text-center p-5 w-100 rounded-4" style="background-color: #F9F6F0; border: 2px dashed #E6DFD3;">
+                <i class="bi bi-emoji-frown display-1 text-muted opacity-50"></i>
+                <h4 class="mt-4 premium-font" style="color: #8C7361;">No active caterers found at the moment.</h4>
+                <p class="text-muted">Our culinary network is expanding. Please check back later!</p>
             </div>
         }
     </div>

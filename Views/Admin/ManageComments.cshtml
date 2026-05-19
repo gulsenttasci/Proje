@@ -1,0 +1,85 @@
+@model IEnumerable<Hearty_Bites.Models.Comments>
+@{
+    ViewData["Title"] = "Admin - Comment Moderation";
+}
+
+<div class="container mt-4 mb-5">
+    <div class="card bg-dark text-white p-3 mb-4 border-0 shadow-sm" style="border-radius: 12px;">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <h4 class="mb-0 fw-bold"><i class="bi bi-shield-shaded text-danger me-2"></i>Admin Navigation</h4>
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-sm btn-outline-light rounded-pill px-3" asp-action="Dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                <a class="btn btn-sm btn-outline-light rounded-pill px-3" asp-action="Orders"><i class="bi bi-bag-check"></i> Orders</a>
+                <a class="btn btn-sm btn-outline-light rounded-pill px-3" asp-action="ManageMenus"><i class="bi bi-card-list"></i> Menus</a>
+                <a class="btn btn-sm btn-info text-dark fw-bold rounded-pill px-3" asp-action="ManageComments"><i class="bi bi-chat-left-text"></i> Comments</a>
+                <a class="btn btn-sm btn-outline-light rounded-pill px-3" asp-action="Logs"><i class="bi bi-terminal"></i> Logs</a>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="mb-4 fw-bold text-secondary"><i class="bi bi-chat-square-text text-primary"></i> Comment & Review Moderation</h3>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success shadow-sm mb-4"><i class="bi bi-check-circle me-2"></i>@TempData["SuccessMessage"]</div>
+    }
+
+    <div class="card border-0 shadow-sm rounded overflow-hidden mb-4">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 bg-white">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Created Date</th>
+                        <th>User Account</th>
+                        <th>Caterer Shop</th>
+                        <th>Rating</th>
+                        <th style="width: 40%;">Comment Text</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-muted small">@item.CreatedDate.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td class="fw-bold text-secondary">@item.User?.Email</td>
+                            <td>@item.Caterer?.ShopName</td>
+                            <td>
+                                <span class="badge bg-warning text-dark">@item.StarRating <i class="bi bi-star-fill small"></i></span>
+                            </td>
+                            <td class="fst-italic text-dark">"@item.CommentText"</td>
+                            <td class="text-end">
+                                <form asp-action="DeleteComment" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Are you sure you want to hide this review from public?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @if (ViewBag.TotalPages > 1)
+    {
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(ViewBag.HasPreviousPage ? "" : "disabled")">
+                    <a class="page-link border-secondary bg-dark text-white" asp-action="ManageComments" asp-route-pageNumber="@(ViewBag.CurrentPage - 1)">&laquo; Previous</a>
+                </li>
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                        <a class="page-link @(ViewBag.CurrentPage == i ? "bg-secondary border-secondary text-white" : "bg-dark border-secondary text-white")" asp-action="ManageComments" asp-route-pageNumber="@i">@i</a>
+                    </li>
+                }
+                <li class="page-item @(ViewBag.HasNextPage ? "" : "disabled")">
+                    <a class="page-link border-secondary bg-dark text-white" asp-action="ManageComments" asp-route-pageNumber="@(ViewBag.CurrentPage + 1)">Next &raquo;</a>
+                </li>
+            </ul>
+        </nav>
+    }
+</div>

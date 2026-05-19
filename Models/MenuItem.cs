@@ -28,6 +28,9 @@ using System.Collections.Generic;
 
     public string? ImageUrl { get; set; }
 
+    
+    public string Category { get; set; } = "General";
+
     [ValidateNever]
     public List<CustomizationGroup> CustomizationGroups { get; set; } = new List<CustomizationGroup>();
     }

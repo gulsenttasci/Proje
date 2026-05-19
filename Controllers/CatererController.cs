@@ -112,7 +112,7 @@ namespace Hearty_Bites.Controllers
                 {
                     string wwwRootPath = _webHostEnvironment.WebRootPath;
                     string fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
-                    string productPath = Path.Combine(wwwRootPath, @"images\menu-items");
+                    string productPath = Path.Combine(wwwRootPath, @"images\caterers\Menus");
 
                     if (!Directory.Exists(productPath)) Directory.CreateDirectory(productPath);
 
@@ -120,7 +120,7 @@ namespace Hearty_Bites.Controllers
                     {
                         await imageFile.CopyToAsync(fileStream);
                     }
-                    menuItem.ImageUrl = @"\images\menu-items\" + fileName;
+                    menuItem.ImageUrl = @"\images\caterers\Menus\" + fileName;
                 }
 
                 menuItem.CatererId = caterer.Id;
@@ -169,7 +169,7 @@ namespace Hearty_Bites.Controllers
                     {
                         string wwwRootPath = _webHostEnvironment.WebRootPath;
                         string fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
-                        string productPath = Path.Combine(wwwRootPath, @"images\menu-items");
+                        string productPath = Path.Combine(wwwRootPath, @"images\caterers/Menus");
 
                         if (!string.IsNullOrEmpty(existingFood.ImageUrl))
                         {
@@ -181,7 +181,7 @@ namespace Hearty_Bites.Controllers
                         {
                             await imageFile.CopyToAsync(fileStream);
                         }
-                        model.ImageUrl = @"\images\menu-items\" + fileName;
+                        model.ImageUrl = @"\images\caterers\Menus\" + fileName;
                     }
                     else
                     {
@@ -207,7 +207,7 @@ namespace Hearty_Bites.Controllers
             var food = await _context.MenuItems.FindAsync(id);
             if (food != null)
             {
-                food.IsDeleted = true; // Soft delete kuralı uygulandı
+                food.IsDeleted = true; 
                 _context.Update(food);
                 await _context.SaveChangesAsync();
             }

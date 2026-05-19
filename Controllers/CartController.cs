@@ -61,10 +61,11 @@ namespace Hearty_Bites.Controllers
 
             var existingItem = await _context.CartItems
                 .FirstOrDefaultAsync(c => c.UserId == userId && c.MenuItemId == menuItemId && c.CustomizationSummary == finalSummary);
-
+            
+            int validQuantity = quantity >= 10 ? quantity : 50;
             if (existingItem != null)
             {
-                existingItem.Quantity = quantity >= 10 ? quantity : 50;
+                existingItem.Quantity += validQuantity;
                 existingItem.UnitPrice = actualPrice;
                 _context.CartItems.Update(existingItem);
             }
